@@ -1,4 +1,4 @@
-// Setup requestAnimationFrame and cancelAnimationFrame for use in the game code
+/**Setup requestAnimationFrame and cancelAnimationFrame for use in the game code**/
 (function () {
     var lastTime = 0;
     var vendors = ['ms', 'moz', 'webkit', 'o'];
@@ -25,48 +25,113 @@
         };
 }());
 
-//Show message
-(function () {
-    //change the html attributes and the css to make it work
-    var messageBoxOkCallback = undefined;
-    var messageBoxCancelCallback = undefined;
-
-    showMessageBox = function (title, message, onOK, onCancel) {
-        $('#messageboxtext').html(message);
-        (!onOK) ? messageBoxOkCallback = undefined : messageBoxOkCallback = onOK;
-
-        if (!onCancel) {
-            messageBoxCancelCallback = undefined;
-            $("#messageboxcancel").hide();
-        } else {
-            messageBoxCancelCallback = onCancel;
-            $("#messageboxcancel").show();
+/**Progressbar
+ * -----------------------**/
+$(function () {
+    dom.progressbar.progressbar({
+        value: false,
+        change: function () {
+            dom.progressLabel.text(dom.progressbar.progressbar("value") + "%");
+        },
+        complete: function () {
+            if (loader.loadedCount === loader.totalCount) {
+                dom.progressLabel.text("Complete!");
+                setTimeout(function () {
+                    dom.progressbar.hide();
+                    common.showGameMenu();
+                }, 1000);
+            }
         }
+    });
 
-        $('#messageboxscreen').show();
-    }
-
-    messageBoxOK = function () {
-        $('#messageboxscreen').hide();
-        if (messageBoxOkCallback) {
-            messageBoxOkCallback()
-        }
-    }
-
-    messageBoxCancel = function () {
-        $('#messageboxscreen').hide();
-        if (messageBoxCancelCallback) {
-            messageBoxCancelCallback();
+    function progress() {
+        var val = dom.progressbar.progressbar("value") || 0;
+        dom.progressbar.progressbar("value", val + 10);
+        if (val < 99) {
+            setTimeout(progress, 10);
         }
     }
 
-//    $('#messageboxok').val("OK").on('click', function () {
-//        messageBoxOK();
-//    });
-//
-//    $('#messageboxcancel').val("Cancel").on('click', function () {
-//        messageBoxCancel();
-//    });
-})();
+    setTimeout(progress, 1000);
+});
 
+/**Some important functions**/
+var common = {
+    onOkCallback: undefined,
+    showGameTitle: function () {
+        dom.gameTitle.show();
+        dom.gameSlogan.show();
+    },
+    hideGameTitle: function () {
+        dom.gameTitle.hide();
+        dom.gameSlogan.hide('slow');
+    },
+    showGameMenu: function () {
+        dom.menu.fadeIn('slow');
+    },
+    hideGameMenu: function () {
+        dom.menu.hide();
+    },
+//click event for Rules
+    rulesButtonOnClick: function () {
+        dom.rulesButton.on('click', function () {
+            common.onInfoMessage("Will be describe soon, please come back soon", "By: Shohel Shamim");
+        });
+    },
+    /**Dialog box functions
+     --------------------------**/
+    onInfoMessage: function (messageOne, messageTwo, onOk) {
+        dom.dialogMessageOne.append("<span id='dialog-messageIcon' class='ui-icon ui-icon-info'></span>");
+        common.dialogMessageContainer(messageOne, messageTwo, onOk);
+    },
+    onAlertMessage: function (messageOne, messageTwo, onOk) {
+        dom.dialogMessageOne.append("<span id='dialog-messageIcon' class='ui-icon ui-icon-alert'></span>");
+        common.dialogMessageContainer(messageOne, messageTwo, onOk);
+    },
+    dialogMessageContainer: function (messageOne, messageTwo, onOk) {
+        common.onOkCallback = onOk;
+        dom.dialogMessageOne.append(messageOne);
+        dom.dialogMessageTwo.html(messageTwo);
+        common.dialog();
+    }
+    /**-----------------------------------**/
+}
 
+/**Dialogbox, use it to show message to the user**/
+common.dialog = function () {
+    dom.dialogBox.dialog({
+        title: "Multiplayer Callbridge",
+        autoOpen: false,
+        resizable: false,
+        draggable: true,
+        position: ['center', 250],
+        closeOnEscape: false,
+        show: 'fast',
+        hide: 'fast',
+        margin: '0 auto',
+        maxWidth: 500,
+        maxHeight: 250,
+        width: 'auto',
+        height: 'auto',
+        modal: true,
+        buttons: {
+            Ok: function () {
+                if (common.onOkCallback != undefined) {
+                    common.onOkCallback();
+                }
+                dom.dialogBox.dialog("close");
+                common.onOkCallback = undefined;
+                dom.dialogMessageOne.html("");
+                dom.dialogMessageTwo.html("");
+            }
+        }
+    });
+    dom.dialogBox.dialog('open');
+}
+
+/**Some Global functions
+ ---------------------------------------**/
+$(window).resize(function () {
+    //Resize dialog box on resize window
+    $("#dialog-message").dialog("option", "position", ['center', 250]);
+});

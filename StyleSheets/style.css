@@ -1,15 +1,92 @@
-﻿#gameContainer {
-    margin: 0 auto;
-    width: 800px;
-    height: 600px;
-    background: #000000;
-    border: 1px solid black;
+﻿body {
+    background: #E8E8E8;
 }
 
-.GameLayer {
-    /*margin: 0 auto;*/
-    width: 800px;
-    height: 600px;
+#gameContainer {
+    margin: 0 auto;
+    width: 900px;
+    height: 700px;
+    background: #000000;
+    border: 1px solid black;
+    -webkit-box-shadow: 1px 1px 30px rgba(50, 50, 50, 1);
+    -moz-box-shadow: 1px 1px 30px rgba(50, 50, 50, 1);
+    -o-box-shadow: 1px 1px 30px rgba(50, 50, 50, 1);
+    -ms-box-shadow: 1px 1px 30px rgba(50, 50, 50, 1);
+    box-shadow: 1px 1px 30px rgba(50, 50, 50, 1);
+}
+
+.gameLayer {
+    width: 900px;
+    height: 700px;
     position: absolute;
     display: none;
 }
+
+#gameTitle {
+    position: relative;
+    top: 70px;
+}
+
+#subTitle {
+    position: relative;
+    top: 60px;
+    text-align: right;
+    right: 100px;
+}
+
+.logo {
+    font-family: Slackey;
+    margin: 0;
+    text-align: center;
+    color: rgb(70, 120, 20);
+    font-size: 4em;
+    line-height: 0.9em;
+    -webkit-text-shadow: 0.05em 0.05em 0.05em rgb(255, 255, 0), -0.05em -0.05em 0.05em rgb(255, 255, 0), 0.08em 0.10em 0.10em #00f746;
+    text-shadow: 0.05em 0.05em 0.05em rgb(255, 255, 0), -0.05em -0.05em 0.05em rgb(255, 255, 0), 0.08em 0.10em 0.10em #00f746;
+}
+
+.slogan {
+    margin: 10px;
+    padding: 10px;
+    font-family: Geo;
+    text-align: center;
+    font-size: 2em;
+    line-height: 0.9em;
+    color: #eeeeee;
+}
+
+/***For main menu span only***/
+.buttonText {
+    padding-top: 20px;
+    text-align: center;
+}
+
+.buttonText span {
+    font-family: Geo;
+    cursor: pointer;
+    color: white;
+    -webkit-text-shadow: -2px 0 purple, 0 2px purple, 2px 0 purple, 0 -2px purple;
+    text-shadow: -2px 0 purple, 0 2px purple, 2px 0 purple, 0 -2px purple;
+}
+
+.buttonText span:hover {
+    color: mediumspringgreen;
+}
+
+/*-----------------------*/
+#playGame {
+    font-size: 3.5em;
+}
+
+#gameRules {
+    font-size: 2.5em;
+}
+
+#menu {
+    position: absolute;
+    width: 900px;
+    height: 250px;
+    top: 350px;
+    display: none;
+}
+
