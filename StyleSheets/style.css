@@ -4,8 +4,8 @@
 
 #gameContainer {
     margin: 0 auto;
-    width: 900px;
-    height: 700px;
+    width: 1020px;
+    height: 760px;
     background: #000000;
     border: 1px solid black;
     -webkit-box-shadow: 1px 1px 30px rgba(50, 50, 50, 1);
@@ -16,8 +16,8 @@
 }
 
 .gameLayer {
-    width: 900px;
-    height: 700px;
+    width: 1020px;
+    height: 760px;
     position: absolute;
     display: none;
 }
@@ -84,9 +84,17 @@
 
 #menu {
     position: absolute;
-    width: 900px;
+    width: 1020px;
     height: 250px;
-    top: 350px;
+    top: 450px;
     display: none;
 }
 
+/***---------Canvas--------*/
+#gameCanvas {
+    position: relative;
+    margin: 0 auto;
+    top: 0;
+    left: 0;
+    background: #336666;
+}

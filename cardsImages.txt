@@ -1,0 +1,60 @@
+Canvas Cards:::
+
+        var img = loader.loadImage("Images/allcards.png");
+        game.gameContext.save();
+        game.gameContext.translate(100, 0);
+        game.gameContext.rotate(Math.PI / 2);
+        game.gameContext.drawImage(img, 203, 477, 67, 96, 0, 10, 67, 96);//Flipped Card
+        game.gameContext.restore();
+        game.gameContext.drawImage(img, 0, 0, 67, 96, 0, 120, 67, 96); //Spade->A
+        game.gameContext.drawImage(img, 102, 0, 66.5, 96, 70, 120, 67, 96); //Spade->2
+        game.gameContext.drawImage(img, 203, 0, 67, 96, 140, 120, 67, 96); //Spade->3
+        game.gameContext.drawImage(img, 305, 0, 66.5, 96, 210, 120, 67, 96); //Spade->4
+        game.gameContext.drawImage(img, 406, 0, 67, 96, 280, 120, 67, 96); //Spade->5
+        game.gameContext.drawImage(img, 507, 0, 67, 96, 350, 120, 67, 96); //Spade->6
+        game.gameContext.drawImage(img, 609, 0, 66.5, 96, 420, 120, 67, 96); //Spade->7
+        game.gameContext.drawImage(img, 710, 0, 67, 96, 490, 120, 67, 96); //Spade->8
+        game.gameContext.drawImage(img, 812, 0, 66.5, 96, 560, 120, 67, 96); //Spade->9
+        game.gameContext.drawImage(img, 913, 0, 67, 96, 630, 120, 67, 96); //Spade->10
+        game.gameContext.drawImage(img, 1014, 0, 67, 96, 700, 120, 67, 96); //Spade->J
+        game.gameContext.drawImage(img, 1116, 0, 66.5, 96, 770, 120, 67, 96); //Spade->Q
+        game.gameContext.drawImage(img, 1217, 0, 67, 96, 840, 120, 67, 96); //Spade->K
+        game.gameContext.drawImage(img, 0, 119, 67, 96, 0, 220, 67, 96); //Hearts->A
+        game.gameContext.drawImage(img, 102, 119, 66.5, 96, 70, 220, 67, 96); //Hearts->2
+        game.gameContext.drawImage(img, 203, 119, 67, 96, 140, 220, 67, 96); //Hearts->3
+        game.gameContext.drawImage(img, 305, 119, 66.5, 96, 210, 220, 67, 96); //Hearts->4
+        game.gameContext.drawImage(img, 406, 119, 67, 96, 280, 220, 67, 96); //Hearts->5
+        game.gameContext.drawImage(img, 507, 119, 67, 96, 350, 220, 67, 96); //Hearts->6
+        game.gameContext.drawImage(img, 609, 119, 66.5, 96, 420, 220, 67, 96); //Hearts->7
+        game.gameContext.drawImage(img, 710, 119, 67, 96, 490, 220, 67, 96); //Hearts->8
+        game.gameContext.drawImage(img, 812, 119, 66.5, 96, 560, 220, 67, 96); //Hearts->9
+        game.gameContext.drawImage(img, 913, 119, 67, 96, 630, 220, 67, 96); //Hearts->10
+        game.gameContext.drawImage(img, 1014, 119, 67, 96, 700, 220, 67, 96); //Hearts->J
+        game.gameContext.drawImage(img, 1116, 119, 66.5, 96, 770, 220, 67, 96); //Hearts->Q
+        game.gameContext.drawImage(img, 1217, 119, 67, 96, 840, 220, 67, 96); //Hearts->K
+        game.gameContext.drawImage(img, 0, 239, 67, 96, 0, 320, 67, 96);  //Dice->A
+        game.gameContext.drawImage(img, 102, 239, 66.5, 96, 70, 320, 67, 96);  //Dice->2
+        game.gameContext.drawImage(img, 203, 239, 67, 96, 140, 320, 67, 96);  //Dice->3
+        game.gameContext.drawImage(img, 305, 239, 66.5, 96, 210, 320, 67, 96);  //Dice->4
+        game.gameContext.drawImage(img, 406, 239, 67, 96, 280, 320, 67, 96);  //Dice->5
+        game.gameContext.drawImage(img, 507, 239, 67, 96, 350, 320, 67, 96);  //Dice->6
+        game.gameContext.drawImage(img, 609, 239, 66.5, 96, 420, 320, 67, 96);  //Dice->7
+        game.gameContext.drawImage(img, 710, 239, 67, 96, 490, 320, 67, 96);  //Dice->8
+        game.gameContext.drawImage(img, 812, 239, 66.5, 96, 560, 320, 67, 96);  //Dice->9
+        game.gameContext.drawImage(img, 913, 239, 67, 96, 630, 320, 67, 96);  //Dice->10
+        game.gameContext.drawImage(img, 1014, 239, 67, 96, 700, 320, 67, 96);  //Dice->J
+        game.gameContext.drawImage(img, 1116, 239, 66.5, 96, 770, 320, 67, 96);  //Dice->Q
+        game.gameContext.drawImage(img, 1217, 239, 67, 96, 840, 320, 67, 96);  //Dice->K
+        game.gameContext.drawImage(img, 0, 358, 67, 96, 0, 420, 67, 96);  //Diamond->A
+        game.gameContext.drawImage(img, 102, 358, 66.5, 96, 70, 420, 67, 96);  //Diamond->2
+        game.gameContext.drawImage(img, 203, 358, 67, 96, 140, 420, 67, 96);  //Diamond->3
+        game.gameContext.drawImage(img, 305, 358, 66.5, 96, 210, 420, 67, 96);  //Diamond->4
+        game.gameContext.drawImage(img, 406, 358, 67, 96, 280, 420, 67, 96);  //Diamond->5
+        game.gameContext.drawImage(img, 507, 358, 67, 96, 350, 420, 67, 96);  //Diamond->6
+        game.gameContext.drawImage(img, 609, 358, 66.5, 96, 420, 420, 67, 96);  //Diamond->7
+        game.gameContext.drawImage(img, 710, 358, 67, 96, 490, 420, 67, 96);  //Diamond->8
+        game.gameContext.drawImage(img, 812, 358, 66.5, 96, 560, 420, 67, 96);  //Diamond->9
+        game.gameContext.drawImage(img, 913, 358, 67, 96, 630, 420, 67, 96);  //Diamond->10
+        game.gameContext.drawImage(img, 1014, 358, 67, 96, 700, 420, 67, 96);  //Diamond->J
+        game.gameContext.drawImage(img, 1116, 358, 66.5, 96, 770, 420, 67, 96);  //Diamond->Q
+        game.gameContext.drawImage(img, 1217, 358, 67, 96, 840, 420, 67, 96);  //Diamond->K

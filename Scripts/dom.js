@@ -1,5 +1,6 @@
 /**Cached of all dom elements, only contains variables**/
-var dom = {
+var dom;
+dom = {
     gameTitle: $("#gameTitle").html("Callbridge"),
     gameSlogan: $('#subTitle').html("A multiplayer card game"),
     progressbar: $("#progressbar"),
@@ -11,5 +12,4 @@ var dom = {
     dialogBox: $("#dialog-message"),
     dialogMessageOne: $("#dialog-messageOne"),
     dialogMessageTwo: $("#dialog-messageTwo")
-    //dialogMessageIcon: $("#dialog-messageIcon")
-}
+};

@@ -72,10 +72,17 @@ var common = {
     hideGameMenu: function () {
         dom.menu.hide();
     },
-//click event for Rules
+//click event for Rules, Play
     rulesButtonOnClick: function () {
         dom.rulesButton.on('click', function () {
             common.onInfoMessage("Will be describe soon, please come back soon", "By: Shohel Shamim");
+        });
+    },
+    play: function () {
+        dom.playButton.on('click', function () {
+            common.hideGameTitle();
+            common.hideGameMenu();
+            game.play();
         });
     },
     /**Dialog box functions
@@ -133,5 +140,8 @@ common.dialog = function () {
  ---------------------------------------**/
 $(window).resize(function () {
     //Resize dialog box on resize window
-    $("#dialog-message").dialog("option", "position", ['center', 250]);
+    try {
+        dom.dialogBox.dialog("option", "position", ['center', 250]);
+    } catch (err) {
+    }
 });
