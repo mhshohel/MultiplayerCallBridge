@@ -11,8 +11,9 @@ Modernizr.load([
             "Scripts/dom.js",
             "Scripts/common.js",
             "Scripts/loader.js",
-            "Scripts/mouse.js",
             "Scripts/cards.js",
+            "Scripts/multiplayer.js",
+            "Scripts/player.js",
             "Scripts/game.js",
         ],
         //after loading all resources below command will be execute
@@ -24,7 +25,7 @@ Modernizr.load([
                     /*Activate all click events*/
                     //rules button click event
                     common.rulesButtonOnClick();
-                    common.play();
+                    common.playButtonOnClick();
                     /*------------------------*/
                     game.init();
                 } catch (err) {

@@ -8,11 +8,11 @@
     height: 760px;
     background: #000000;
     border: 1px solid black;
-    -webkit-box-shadow: 1px 1px 30px rgba(50, 50, 50, 1);
-    -moz-box-shadow: 1px 1px 30px rgba(50, 50, 50, 1);
-    -o-box-shadow: 1px 1px 30px rgba(50, 50, 50, 1);
-    -ms-box-shadow: 1px 1px 30px rgba(50, 50, 50, 1);
-    box-shadow: 1px 1px 30px rgba(50, 50, 50, 1);
+    -webkit-box-shadow: 1px 1px 30px rgba(153, 204, 102, 1);
+    -moz-box-shadow: 1px 1px 30px rgba(153, 204, 102, 1);
+    -o-box-shadow: 1px 1px 30px rgba(153, 204, 102, 1);
+    -ms-box-shadow: 1px 1px 30px rgba(153, 204, 102, 1);
+    box-shadow: 1px 1px 30px rgba(153, 204, 102, 1);
 }
 
 .gameLayer {
@@ -93,8 +93,7 @@
 /***---------Canvas--------*/
 #gameCanvas {
     position: relative;
-    margin: 0 auto;
-    top: 0;
-    left: 0;
-    background: #336666;
+    top: -3px;
+    left: -3px;
+    /*background: #336666;*/
 }

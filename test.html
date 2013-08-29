@@ -1,43 +1,87 @@
-<!doctype html>
-
-<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <title>jQuery UI Dialog - Modal message</title>
-    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
-    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
-    <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
-    <link rel="stylesheet" href="/resources/demos/style.css" />
+    <script src="http://d3lp1msu2r81bx.cloudfront.net/kjs/js/lib/kinetic-v4.6.0.min.js">
+    </script>
     <script>
-        $(function() {
-            $( "#dialog-message" ).dialog({
-                modal: true,
-                buttons: {
-                    Ok: function() {
-                        $( this ).dialog( "close" );
-                    },
-                    cancel:function(){
-                        $( this ).dialog( "close" );
-                    }
+        window.onload = function(){
+            var stage = new Kinetic.Stage("container", 578, 200);
+            var shapesLayer = new Kinetic.Layer();
+            var tooltipLayer = new Kinetic.Layer();
+
+            var triangle = new Kinetic.Shape({
+                drawFunc: function(){
+                    var context = this.getContext();
+                    context.beginPath();
+                    context.lineWidth = 4;
+                    context.strokeStyle = "black";
+                    context.fillStyle = "#00D2FF";
+                    context.moveTo(120, 50);
+                    context.lineTo(250, 80);
+                    context.lineTo(150, 170);
+                    context.closePath();
+                    context.fill();
+                    context.stroke();
                 }
             });
-        });
+
+            triangle.on("mousemove", function(){
+                var mousePos = stage.getMousePosition();
+                tooltip.setPosition(mousePos.x + 5, mousePos.y + 5);
+                tooltip.text = "Cyan Triangle";
+                tooltip.show();
+                tooltipLayer.draw();
+            });
+
+            triangle.on("mouseout", function(){
+                tooltip.hide();
+                tooltipLayer.draw();
+            });
+
+            shapesLayer.add(triangle);
+
+            var circle = new Kinetic.Circle({
+                x: 380,
+                y: stage.height / 2,
+                fill: "red",
+                stroke: "black",
+                strokeWidth: 4,
+                radius: 70
+            });
+
+            circle.on("mousemove", function(){
+                var mousePos = stage.getMousePosition();
+                tooltip.setPosition(mousePos.x + 5, mousePos.y + 5);
+                tooltip.setText("Red Circle");
+                tooltip.show();
+                tooltipLayer.draw();
+            });
+
+            circle.on("mouseout", function(){
+                tooltip.hide();
+                tooltipLayer.draw();
+            });
+
+            shapesLayer.add(circle);
+
+            var tooltip = new Kinetic.Text({
+                text: "",
+                fontFamily: "Calibri",
+                fontSize: 12,
+                padding: 5,
+                textFill: "white",
+                fill: "black",
+                alpha: 0.75,
+                visible: false
+            });
+
+            //tooltipLayer.listen(false);
+            tooltipLayer.add(tooltip);
+
+            stage.add(shapesLayer);
+            stage.add(tooltipLayer);
+        };
     </script>
 </head>
-<body>
-
-<div id="dialog-message" title="Download complete">
-    <p>
-        <span class="ui-icon ui-icon-circle-check" style="float: left; margin: 0 7px 50px 0;"></span>
-        Your files have downloaded successfully into the My Downloads folder.
-    </p>
-    <p>
-        Currently using <b>36% of your storage space</b>.
-    </p>
+<body onmousedown="return false;">
+<div id="container">
 </div>
-
-<p>Sed vel diam id libero <a href="http://example.com">rutrum convallis</a>. Donec aliquet leo vel magna. Phasellus rhoncus faucibus ante. Etiam bibendum, enim faucibus aliquet rhoncus, arcu felis ultricies neque, sit amet auctor elit eros a lectus.</p>
-
-
 </body>
-</html>

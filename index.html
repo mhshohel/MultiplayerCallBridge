@@ -6,11 +6,15 @@
     <meta name="viewport" content="width=device-width, user-scalable=no"/>
     <meta name="apple-mobile-web-app-capable" content="yes"/>
     <link rel="shortcut icon" href="Images/icon.png"/>
+    <!--[if lt IE 9]>
+    <script src="Lib/excanvas.min.js"></script>
+    <![endif]-->
     <script src="Lib/modernizr.min.js"></script>
     <script src="Scripts/resources.load.js"></script>
 </head>
 <body>
 <div id="gameContainer">
+    <canvas id="gameCanvas" class="gameLayer">Your browser doesn't support canvas, please update</canvas>
     <div id="gameTitle" class="logo"></div>
     <div id="subTitle" class="slogan"></div>
     <div id="progressbar">
@@ -22,7 +26,6 @@
         <span id="gameRules"></span>
     </div>
     <div id="rules" class="gameLayer"></div>
-    <canvas id="gameCanvas" class="gameLayer">Your browser doesn't support canvas, please update</canvas>
     <div id="dialog-message" class="gameLayer">
         <p id="dialog-messageOne"></p>
 

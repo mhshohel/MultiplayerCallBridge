@@ -13,11 +13,10 @@ var Card;
  */
 
 Card = function (suite, svalue, cvalue, sname, points, image, sx, sy, sw, sh) {
-    var draw = function (x, y) {
-        game.gameContext.drawImage(image, sx, sy, sw, sh, x, y, 67, 97);
-    };
     return{
-        draw: draw,
+        draw: function (x, y) {
+            game.gameContext.drawImage(image, sx, sy, sw, sh, x, y, 48, 70);
+        },
         suite: suite, //Suite name
         svalue: svalue, //Suite value
         cvalue: cvalue, // Card value
@@ -26,6 +25,7 @@ Card = function (suite, svalue, cvalue, sname, points, image, sx, sy, sw, sh) {
     }
 };
 
+//List of Cards with name, face value and points
 var cards;
 cards = {
     Spade: {

@@ -78,7 +78,7 @@ var common = {
             common.onInfoMessage("Will be describe soon, please come back soon", "By: Shohel Shamim");
         });
     },
-    play: function () {
+    playButtonOnClick: function () {
         dom.playButton.on('click', function () {
             common.hideGameTitle();
             common.hideGameMenu();

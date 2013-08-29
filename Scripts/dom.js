@@ -11,5 +11,6 @@ dom = {
     gameCanvas: $('#gameCanvas'),
     dialogBox: $("#dialog-message"),
     dialogMessageOne: $("#dialog-messageOne"),
-    dialogMessageTwo: $("#dialog-messageTwo")
+    dialogMessageTwo: $("#dialog-messageTwo"),
+    canvas: $("#gameCanvas")
 };

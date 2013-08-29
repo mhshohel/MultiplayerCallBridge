@@ -5,7 +5,6 @@ loader = {
     totalCount: 0, // total number of assets that need to be loaded
     init: function () {
         var image = loader.loadImage("Images/allcards.png");
-        game.cards = loader.cardsLoad(image);
     },
     //load image file as new Image() by taking image file url
     loadImage: function (url) {
@@ -13,7 +12,7 @@ loader = {
         this.loaded = false;
         var image = new Image();
         image.src = url;
-        image.onload = loader.itemLoaded;
+        image.onload = loader.itemLoaded(image);
         return image;
     },
     // cards objects array to pre load
@@ -56,10 +55,11 @@ loader = {
         game.allcards.push(new Card("Flipped", 0, 0, "Fli.0", 0, image, 203, 477, 67, 96));
     },
     // to get information in loading screen and to make sure assets are loaded
-    itemLoaded: function () {
+    itemLoaded: function (image) {
         loader.loadedCount++;
         if (loader.loadedCount === loader.totalCount) {
             loader.loaded = true;
+            loader.cardsLoad(image);
             if (loader.onload) {
                 loader.onload();
                 loader.onload = undefined;
