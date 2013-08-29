@@ -21,7 +21,7 @@ game = {
         common.hideGameMenu();
         $("#gameCanvas").show();
         //setInterval(function () {
-            game.drawScene();
+        game.drawScene();
         //}, 30);
         //reset everything
         //game.displayAllCards();
@@ -50,10 +50,10 @@ game = {
         //user cards
         (function () {
             var x, y = 635, c = 0;
-            x = 55;
+            x = 150;
             for (var j = 0; j < 13; j++) {
                 game.allcards[c].draw(x, y);
-                x += 49;
+                x += 35;
                 c++;
             }
         }());
@@ -102,40 +102,26 @@ game = {
     drawBoard: function () {
         game.gameContext.fillStyle = "#339966";
         game.gameContext.fillRect(game.padding, game.padding, game.boardWidth, game.boardHeight);
-        //Local User
-        game.gameContext.beginPath();
-        game.gameContext.moveTo(55, 705);
-        game.gameContext.lineTo(691, 705);
-        game.gameContext.lineWidth = 5;
-        game.gameContext.strokeStyle = '#FFCC00';
-        game.gameContext.lineCap = 'round';
-        game.gameContext.stroke();
-        //Right side user
-        game.gameContext.beginPath();
-        game.gameContext.moveTo(705, 140);
-        game.gameContext.lineTo(705, 608);
-        game.gameContext.lineWidth = 5;
-        game.gameContext.strokeStyle = '#FFCC00';
-        game.gameContext.lineCap = 'round';
-        game.gameContext.stroke();
-
-        //top side user
-        game.gameContext.beginPath();
-        game.gameContext.moveTo(618, 55);
-        game.gameContext.lineTo(148, 55);
-        game.gameContext.lineWidth = 5;
-        game.gameContext.strokeStyle = '#FFCC00';
-        game.gameContext.lineCap = 'round';
-        game.gameContext.stroke();
-
-        //left side user
-        game.gameContext.beginPath();
-        game.gameContext.moveTo(55, 140);
-        game.gameContext.lineTo(55, 608);
-        game.gameContext.lineWidth = 5;
-        game.gameContext.strokeStyle = '#FFCC00';
-        game.gameContext.lineCap = 'round';
-        game.gameContext.stroke();
+        game.gameContext.save();
+        //Draw lines
+        (function () {
+            var linePos = {
+                "0": {move: {x: 148, y: 705}, line: {x: 619, y: 705}},//buttom
+                "1": {move: {x: 705, y: 140}, line: {x: 705, y: 608}},//right
+                "2": {move: {x: 619, y: 55}, line: {x: 148, y: 55}},//top
+                "3": {move: {x: 55, y: 140}, line: {x: 55, y: 608}}//left
+            }
+            game.gameContext.lineWidth = 5;
+            game.gameContext.strokeStyle = '#FFCC00';
+            game.gameContext.lineCap = 'round';
+            for (var i = 0; i < 4; i++) {
+                game.gameContext.beginPath();
+                game.gameContext.moveTo(linePos[i].move.x, linePos[i].move.y);
+                game.gameContext.lineTo(linePos[i].line.x, linePos[i].line.y);
+                game.gameContext.stroke();
+            }
+        })();
+        game.gameContext.restore();
     },
     onMouseClick: function (e) {
         var mouseX = e.layerX || 0;
