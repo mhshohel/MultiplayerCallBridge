@@ -2,7 +2,7 @@ var Player;
 Player = function (name, hostNum, clientId, gameRoomNumber) {
     var cards = [];
     return{
-        getCards: cards,
+        //getCards: cards,
         emptyPlayerCards: function () {
             cards = [];
         },

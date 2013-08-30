@@ -14,7 +14,7 @@ Modernizr.load([
             "Scripts/cards.js",
             "Scripts/multiplayer.js",
             "Scripts/player.js",
-            "Scripts/game.js",
+            "Scripts/game.js"
         ],
         //after loading all resources below command will be execute
         complete: function () {
@@ -36,5 +36,5 @@ Modernizr.load([
                 alert("You browser doesn't supported for this game. Please, update your browser. Thank you.");
             }
         }
-    },
+    }
 ]);

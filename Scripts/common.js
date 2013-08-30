@@ -34,7 +34,7 @@ $(function () {
             dom.progressLabel.text(dom.progressbar.progressbar("value") + "%");
         },
         complete: function () {
-            if (loader.loadedCount === loader.totalCount) {
+            if (loader.getLoadedCount() === loader.getTotalCount()) {
                 dom.progressLabel.text("Complete!");
                 setTimeout(function () {
                     dom.progressbar.hide();

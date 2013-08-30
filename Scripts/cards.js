@@ -15,7 +15,7 @@ var Card;
 Card = function (suite, svalue, cvalue, sname, points, image, sx, sy, sw, sh) {
     return{
         draw: function (x, y) {
-            game.gameContext.drawImage(image, sx, sy, sw, sh, x, y, 48, 70);
+            game.drawImage(image, sx, sy, sw, sh, x, y, 48, 70);
         },
         suite: suite, //Suite name
         svalue: svalue, //Suite value
