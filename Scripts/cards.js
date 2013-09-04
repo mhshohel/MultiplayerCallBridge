@@ -12,16 +12,25 @@ var Card;
  * image: original image
  */
 
-Card = function (suite, svalue, cvalue, sname, points, image, sx, sy, sw, sh) {
+Card = function (suite, svalue, cvalue, sname, points, img, sx, sy, sw, sh) {
+    var image = img, posX = 0, posY = 0, isClicked = false;
     return{
         draw: function (x, y) {
-            game.drawImage(image, sx, sy, sw, sh, x, y, 48, 70);
+            posX = x;
+            posY = y;
+            game.drawImage(image, sx, sy, sw, sh, posX, posY, 48, 70);
+        },
+        animate: function (card, destX, dextY) {
+            // var i = setInterval(function () {
+            game.drawImage(image, sx, sy, sw, sh, (posX - 100), (posY - 300), 48, 70);
+            // }, 20);
         },
         suite: suite, //Suite name
         svalue: svalue, //Suite value
         cvalue: cvalue, // Card value
         cname: sname + cvalue, //Card value with suite name
-        points: points //Card point or Rank
+        points: points, //Card point or Rank
+        isClicked: isClicked //true if card is clicked
     }
 };
 
@@ -44,13 +53,13 @@ cards = {
         name: "Dice",
         sname: "Dic.",
         svalue: 2,
-        points: [13, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+        points: [26, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
     },
     Diamond: {
         name: "Diamond",
         sname: "Dia.",
         svalue: 1,
-        points: [26, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
+        points: [13, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     },
     Values: ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
 };

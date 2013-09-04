@@ -1,13 +1,16 @@
 var game;
 game = (function () {
-    var allcards = [], initialized = false, gameCanvas, gameContext, canvasWidth, canvasHeight, boardWidth, boardHeight, padding,
+    var allcards = [], initialized = false, gameRunning = false, cardsOnBoard = false,
+        gameCanvas, gameContext, canvasWidth, canvasHeight, boardWidth, boardHeight, padding, round = 0, cardAnimationInterval = 0, isAnimated = false,
+        /**Insert them in Player**/
+            localPlayer, rightPlayer, topPlayer, leftPlayer,
     //initialize canvas and other required game attributes.
         init = function () {
             if (!initialized) {
                 try {
                     loader.init();
                 } catch (err) {
-                    throw new Error(err);
+                    throw new Error("Error in game.init()???loader.init(): " + err.message);
                 }
                 gameCanvas = document.getElementById("gameCanvas");
                 gameContext = gameCanvas.getContext("2d");
@@ -21,24 +24,53 @@ game = (function () {
             }
             initialized = true;
         },
-        play = function () {
-            if (initialized) {
-                //game.displayAllCards();
-                common.hideGameMenu();
-                dom.canvas.show();
-                //setInterval(function () {
-                drawScene();
-                //}, 30);
-                //reset everything
-                //game.displayAllCards();
-            }
-        }      ,
-        stop = function () {
-            //back to normal and reset then show main
-        },
     //reset all required game attributes and events.
         reset = function () {
             dom.canvas.off('click');
+            gameRunning = false;
+            cardsOnBoard = false;
+            localPlayer = undefined;
+            rightPlayer = undefined;
+            topPlayer = undefined;
+            leftPlayer = undefined;
+            round = 0;  // take it from server
+        },
+    //before play must use new game function
+        newGame = function () {
+            if (initialized) {
+                //reset all values
+                reset();
+                //create player, local, right, top, left
+                initPlayers();
+            }
+        },
+        play = function () {
+            if (initialized) {
+                //game.displayAllCards();
+                gameRunning = true;
+                common.hideGameMenu();
+                //show canvas within a sec. decide whether it will come from server or not to hide
+                common.showGameStatus("Round: " + round, "shohel shamim");
+                setTimeout(function () {
+                    common.hideGameStatus();
+                    dom.canvas.show();
+                    drawScene();
+                }, 1000);
+                //dom.canvas.show();
+
+                //drawScene();
+
+                //game.displayAllCards();
+            }
+        },
+        initPlayers = function () {
+            localPlayer = new Player(true);
+            rightPlayer = new Player(false);
+            topPlayer = new Player(false);
+            leftPlayer = new Player(false);
+        },
+        stop = function () {
+            //back to normal and reset then show main
         },
         clearCanvas = function () {
             gameContext.clearRect(0, 0, game.canvasWidth, game.canvasHeight);
@@ -52,14 +84,23 @@ game = (function () {
             clearBoard();
             drawBoard();
             //verify cards available otherwise no, and after each click off click event, in next draw it should active, or create flag if animated
-            dom.canvas.on('click', onMouseClick);
+            drawCards();
+            console.log("STOP Anim");
+            if (!isAnimated) {
+                clearInterval(cardAnimationInterval);
+                dom.canvas.on('click', onMouseClick);
+            }
+        },
+        drawCards = function () {
             //Players Cards On Board
             var pcob = {
-                "0": {x: 150, y: 635, t: 0},//local user
-                "1": {x: 140, y: 235, t: 939},//right
-                "2": {x: 150, y: 55, t: 0},//top
-                "3": {x: 140, y: 374, t: 500}//left
-            }
+                    //x: x-axis, y: y-axis, t: translate
+                    "0": {x: 150, y: 635, t: 0},//local user
+                    "1": {x: 140, y: 235, t: 939},//right
+                    "2": {x: 150, y: 55, t: 0},//top
+                    "3": {x: 140, y: 374, t: 500}//left
+                },
+                localPlayerCards = localPlayer.getCards();
             for (var i = 0; i < 4; i++) {
                 var translate = function () {
                     gameContext.translate(pcob[i].t, 0);
@@ -73,11 +114,17 @@ game = (function () {
                 }
                 for (var j = 0; j < 13; j++) {
                     if (i == 0) {
-                        allcards[j].draw(pcob[i].x, pcob[i].y);
+                        if (localPlayerCards.length == 0) {
+                            //show mwssage or something...
+                            console.log("Empty cards...");
+                            break;
+                        } else if (localPlayerCards[j] != undefined) {
+                            localPlayerCards[j].card.draw(localPlayerCards[j].x, localPlayerCards[j].y);
+                        }
                     } else {
                         allcards[allcards.length - 1].draw(pcob[i].x, pcob[i].y);
                     }
-                    pcob[i].x += 35; //overlap card on another
+                    pcob[i].x += 35; //overlap card one another
                 }
             }
             gameContext.restore();
@@ -106,6 +153,23 @@ game = (function () {
                 }
             })();
             gameContext.restore();
+
+            /* vertical lines */
+            for (var x = 20; x <= 740; x += 80) {
+                gameContext.moveTo(0.5 + x, 20);
+                gameContext.lineTo(0.5 + x, 740);
+            }
+
+            /* horizontal lines */
+            for (var y = 20; y <= 740; y += 80) {
+                gameContext.moveTo(20, 0.5 + y);
+                gameContext.lineTo(740, 0.5 + y);
+            }
+
+            /* draw it! */
+            gameContext.strokeStyle = "#ccc";
+            gameContext.stroke();
+
         },
         drawImage = function (image, sx, sy, sw, sh, x, y, posX, posY) {
             if (initialized) {
@@ -113,14 +177,53 @@ game = (function () {
             }
         },
         onMouseClick = function (e) {
-            var mouseX = e.layerX || 0;
-            var mouseY = e.layerY || 0;
-            //for updated jquery version: 1.7+
-            if (e.originalEvent.layerX) {
-                mouseX = e.originalEvent.layerX;
-                mouseY = e.originalEvent.layerY;
+            var mouseX;
+            var mouseY;
+            if (e.pageX != undefined && e.pageY != undefined) {
+                mouseX = e.pageX;
+                mouseY = e.pageY;
+            } else {
+                mouseX = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+                mouseY = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
             }
-            console.log(mouseX + "   " + mouseY);
+            mouseX -= gameCanvas.offsetLeft;
+            mouseY -= gameCanvas.offsetTop;
+
+            var cards = localPlayer.getCards();
+            if (cards.length != 0 && !isAnimated) {
+                //get values from server
+                if (mouseX >= 150 && mouseX <= 618 && mouseY >= 635 && mouseY <= 705) {
+                    for (var i = 0; i < cards.length; i++) {
+                        if (mouseX >= cards[i].x && mouseX <= (cards[i].x + cards[i].w)) {
+                            if (!cards[i].isClicked) {
+                                moveCard(cards[i]);
+                                dom.canvas.off('click');
+                                console.log("Clicked: " + cards[i].card.cname + "   " + mouseX + "   " + mouseY);
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        },
+        moveCard = function (object) {
+            isAnimated = true;
+            var timer = function () {
+                object.x = ( object.x != 440) ? ( object.x += 5) : 440;
+                object.y = ( object.y != 400) ? ( object.y -= 5) : 400;
+                //object.card.animate()
+                if ((object.x) == 440 && (object.y) == 400) {
+                    //cardsOnBoard = false;
+                    isAnimated = false;
+                    object.isClicked = true;
+                    console.log("Fin   ");
+                    drawScene();
+                } else {
+                    console.log(object.x + "   " + object.y);
+                    drawScene();
+                }
+            };
+            cardAnimationInterval = setInterval(timer, 20);
         },
         clearTriggers = function () {
 
@@ -146,8 +249,33 @@ game = (function () {
     return {
         allcards: allcards,
         init: init,
+        newGame: newGame,
         play: play,
-        drawImage: drawImage
+        drawImage: drawImage,
+        pushLocalPlayersCards: function (x, y, w, h, arrayPos, suite, svalue, cvalue, points, cname) {
+            var c = undefined;
+            if (arrayPos <= allcards.length) {
+                c = allcards[arrayPos];
+                if (c.suite == suite && c.svalue == svalue && c.cvalue == cvalue && c.points == points && c.cname == cname) {
+                    localPlayer.pushCards(x, y, w, h, c);
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+            //localPlayer.pushCards(x, y, arrayPos, suite, svalue, cvalue, sname, points);
+        },
+        pushRightPlayersCards: function (val) {
+            rightPlayer = val;
+        },
+        pushLeftPlayersCards: function (val) {
+            leftPlayer = val;
+        },
+        pushTopPlayersCards: function (val) {
+            topPlayer = val;
+        }
     }
-})
-    ();
+})();

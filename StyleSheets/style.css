@@ -90,6 +90,40 @@
     display: none;
 }
 
+/**Game Status**/
+#statusScreen {
+    display: none;
+    text-align: center;
+    width: 1020px;
+    height: 380px;
+    top: 100px;
+    left: 0;
+    padding: 10px;
+    text-decoration: none;
+    margin: 0 auto;
+}
+
+#statusHeaderText {
+    position: relative;
+    margin: 20px;
+    padding: 10px;
+    top:200px;
+    font-family: Geo;
+    font-size: 3.5em;
+    line-height: 0.9em;
+}
+
+#statusFooterText{
+    position: relative;
+    margin: 20px;
+    padding: 10px;
+    top:230px;
+    font-family: Slackey;
+    font-size: 2em;
+    line-height: 0.9em;
+    color: #ffffff;
+}
+
 /***---------Canvas--------*/
 #gameCanvas {
     position: relative;

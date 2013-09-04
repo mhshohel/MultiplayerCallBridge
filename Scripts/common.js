@@ -72,6 +72,16 @@ var common = {
     hideGameMenu: function () {
         dom.menu.hide();
     },
+    showGameStatus: function (header, footer) {
+        dom.statusHeaderText.html((header == undefined) ? "" : header);
+        dom.statusFooterText.html((footer == undefined) ? "" : footer);
+        dom.gameStatusScreen.show();
+    },
+    hideGameStatus: function () {
+        dom.statusHeaderText.html("");
+        dom.statusFooterText.html("");
+        dom.gameStatusScreen.hide('slow');
+    },
 //click event for Rules, Play
     rulesButtonOnClick: function () {
         dom.rulesButton.on('click', function () {
@@ -82,7 +92,7 @@ var common = {
         dom.playButton.on('click', function () {
             common.hideGameTitle();
             common.hideGameMenu();
-            game.play();
+            multiPlayer.start();
         });
     },
     /**Dialog box functions

@@ -1,7 +1,7 @@
 ﻿var multiPlayer = {
     socket: undefined,
     start: function () {
-
+        this.play();
     },
     startGame: function () {
 
@@ -10,57 +10,30 @@
 
     },
     play: function () {
+        game.newGame();
+        var c, x = 150, y = 635, w = 35, h = 70, pos = 0, isAvailable = true;
+        //(suite, svalue, cvalue, sname, points)
 
+        for (var i = 0; i < 12; i++) {
+            pos = Math.floor(Math.random() * 52);
+            c = game.allcards[pos];
+            isAvailable = (isAvailable == true) ? game.pushLocalPlayersCards(x, y, w, h, pos, c.suite, c.svalue, c.cvalue, c.points, c.cname) : false;
+            x += w;
+        }
+        pos = Math.floor(Math.random() * 52);
+        c = game.allcards[pos];
+        isAvailable = (isAvailable == true) ? game.pushLocalPlayersCards(x, y, 48, 70, pos, c.suite, c.svalue, c.cvalue, c.points, c.cname) : false;
+
+        if (isAvailable) {
+            game.play();
+        } else {
+            //show error message as don't change code...
+        }
     },
     join: function () {
 
     },
     cancel: function () {
-
-    },
-//Receive message from server according to message
-    receiveSocketMessage: function (message) {
-        multiPlayer.socket.on(message, function (data) {
-            multiPlayer.handleSocketMessage(data);
-        });
-    },
-//send message to server
-    sendSocketMessage: function (data) {
-        multiPlayer.socket.emit(data.type, JSON.stringify(data));
-    },
-//handle game request
-    handleSocketMessage: function (message) {
-        var messageObject = JSON.parse(message);
-        switch (messageObject.type) {
-            case "getScore":
-                break;
-            case "room_list":
-                break;
-            case 'init_game':
-                break;
-            case 'timer':
-                break;
-            case 'gameover':
-                break;
-        }
-    },
-    statusMessages: {
-        'starting': 'Game Starting',
-        'running': 'Game in Progress',
-        'waiting': 'Awaiting second player',
-        'empty': 'Open'
-    },
-    updateRoomStatus: function (messageObject) {
-
-    },
-    endGame: function (cause, onOk, onClose) {
-
-    },
-    levelCompleteScreen: function () {
-
-    },
-    //Game over screen
-    gameOverScreen: function () {
 
     }
 }
