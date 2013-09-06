@@ -11,7 +11,7 @@ var Card;
  * sh: source height
  * image: original image
  */
-
+/**A card class contains its suite, suite value(4,3,2,1), suite name(Spade...), points, original image, and properties to draw image in canvas**/
 Card = function (suite, svalue, cvalue, sname, points, img, sx, sy, sw, sh) {
     var image = img, posX = 0, posY = 0, isClicked = false;
     return{
@@ -19,11 +19,6 @@ Card = function (suite, svalue, cvalue, sname, points, img, sx, sy, sw, sh) {
             posX = x;
             posY = y;
             game.drawImage(image, sx, sy, sw, sh, posX, posY, 48, 70);
-        },
-        animate: function (card, destX, dextY) {
-            // var i = setInterval(function () {
-            game.drawImage(image, sx, sy, sw, sh, (posX - 100), (posY - 300), 48, 70);
-            // }, 20);
         },
         suite: suite, //Suite name
         svalue: svalue, //Suite value
@@ -34,7 +29,7 @@ Card = function (suite, svalue, cvalue, sname, points, img, sx, sy, sw, sh) {
     }
 };
 
-//List of Cards with name, face value and points
+/**List of Cards with name, face value and points**/
 var cards;
 cards = {
     Spade: {

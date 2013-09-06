@@ -3,8 +3,8 @@ loader = (function () {
     var loaded = true,
         loadedCount = 0, // assets that have been loaded so far
         totalCount = 0, // total number of assets that need to be loaded
-    // cards objects array to pre load
-        cardsLoad = function (image) {
+        /** cards objects array to pre load **/
+            cardsLoad = function (image) {
             //Cards Drawing Property
             var cdp = {
                 "4": {c: cards.Spade, x: 0, y: 0},
@@ -29,8 +29,8 @@ loader = (function () {
             }
             game.allcards.push(new Card("Flipped", 0, 0, "Fli.0", 0, image, 203, 477, 67, 96));
         },
-    // to get information in loading screen and to make sure assets are loaded
-        itemLoaded = function (image) {
+        /**to get information in loading screen and to make sure assets are loaded**/
+            itemLoaded = function (image) {
             loadedCount++;
             if (loadedCount === totalCount) {
                 loaded = true;
@@ -51,7 +51,7 @@ loader = (function () {
         init: function () {
             loader.loadImage("Images/allcards.png");
         },
-        //load image file as new Image() by taking image file url
+        /**load image file as new Image() by taking image file url**/
         loadImage: function (url) {
             totalCount++;
             loaded = false;

@@ -14,34 +14,44 @@ Player = function (isLocal, name, hostNum, clientId, gameRoomNumber) {
         hostNum: hostNum,
         clientId: clientId,
         gameRoomNumber: gameRoomNumber,
-        getCards: function () {
-            if (isLocal) {
-                return cards;
+        //return cards by index
+        getCards: function (index) {
+            if (index != undefined) {
+                if (index >= cards.length) {
+                    return undefined;
+                } else {
+                    return cards[index];
+                }
             } else {
-                return undefined;
+                return cards;
             }
+        },
+        emptyCards: function () {
+            cards = [];
         },
         removeCard: function (card) {
             cards.splice(cards.indexOf(card), 1);
-            cards.push();
+            cards.push(undefined);
             countUndefinedCard++;
             if (countUndefinedCard == 13) {
                 emptyPlayerCards();
             }
         },
-        pushCards: function (x, y, w, h, card) {
+        pushCards: function (x, y, w, h, card, t) {
             //x: x-axis, y: y-axis, w: width, h: height
-            if (isLocal) {
-                cards.push(
-                    {
-                        x: x,
-                        y: y,
-                        w: w,
-                        h: h,
-                        card: card
-                    }
-                );
-            }
+//            if (isLocal) {
+            console.log("Adding");
+            cards.push(
+                {
+                    x: x,
+                    y: y,
+                    w: w,
+                    h: h,
+                    t: (t == undefined) ? undefined : t,
+                    card: card
+                }
+            );
+//            }
         }
     }
 }
