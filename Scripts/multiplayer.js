@@ -9,18 +9,25 @@
     /**Init before play game**/
     start: function () {
         multiPlayer.roomList = undefined;
-        multiPlayer.socket = io.connect('http://localhost:8000');
-        if (multiPlayer.socket == undefined) {
-            common.dialogMessageContainer("Error connecting to the server.");
-        } else {
-            //send request to get room list
-            multiPlayer.sendSocketMessage({type: 'room_list'});
-            //initialize game room list
-            multiPlayer.receiveSocketMessage('room_list');
-            common.showLobby();
-            //dom.multiplayerLobby.show();
-            //dom.multiplayerLobby.show();
-            //this.play();
+        //add 1 with roomId of server to get options val
+        multiPlayer.selectedRomNum = 0;
+        try {
+            multiPlayer.socket = io.connect('http://localhost:8000');
+            if (multiPlayer.socket == undefined) {
+                common.onAlertMessage("Error connecting to the server.");
+            } else {
+                common.hideGameMenu();
+                //send request to get room list, get room list first time, not update to others
+                multiPlayer.sendSocketMessage({type: socketTag.rooms, action: "toClient"});
+                //initialize game room list
+                multiPlayer.receiveSocketMessage(socketTag.rooms);
+                common.showLobby();
+                //dom.multiplayerLobby.show();
+                //dom.multiplayerLobby.show();
+                //this.play();
+            }
+        } catch (err) {
+            common.onAlertMessage("Error connecting to the server.");
         }
     },
     startGame: function () {
@@ -74,28 +81,55 @@
         console.log(playersInfo.local.getCards());
     },
     join: function () {
-
+        var name = dom.clientName.val();
+        if (name == undefined || name == "") {
+            common.onInfoMessage("Please enter your name.");
+        } else if (name.length < 5) {
+            common.onInfoMessage("Name should be at least 5 character long.");
+        } else {
+            var selectedRoom = dom.multiPlayerGamesList.val();
+            if (selectedRoom) {
+//                multiPlayer.sendSocketMessage({type: socketTag.joinRoom, roomId: selectedRoom - 1, foodLength: game.foods.length, boardHeight: game.boardHeight, boardWidth: game.boardWidth, contentSize: game.size, space: game.space});
+//                $('#multiPlayerGamesList').prop('disabled', true);
+//                $('#multiPlayerJoin').prop('disabled', true);
+//            } else {
+//                game.showMessageBox("Please select a game room to join.");
+            }
+        }
     },
     cancel: function () {
 
     },
     updateRoomStatus: function (messageObject) {
         var roomList = messageObject.roomList;
-        if (multiPlayer.roomId != undefined && messageObject.disconnectedRoomId != undefined) {
-            if (multiPlayer.roomId == messageObject.disconnectedRoomId) {
-                game.running = false;
-                game.pause();
-                multiPlayer.endGame(messageObject.errorMessage, function () {
-                    $('#gameCanvas').hide();
-                    $('#multiPlayerLobbyScreen').show();
-                })
-            }
-        }
-        var $list = $("#multiPlayerGamesList");
+//        if (multiPlayer.roomId != undefined && messageObject.disconnectedRoomId != undefined) {
+//            if (multiPlayer.roomId == messageObject.disconnectedRoomId) {
+//                game.running = false;
+//                game.pause();
+//                multiPlayer.endGame(messageObject.errorMessage, function () {
+//                    $('#gameCanvas').hide();
+//                    $('#multiPlayerLobbyScreen').show();
+//                })
+//            }
+//        }
+        var $list = dom.multiPlayerGamesList;
         $list.empty(); // remove old options
+        var isDisabled = false;
         for (var i = 0; i < roomList.length; i++) {
+            if (roomList[i].roomStatus == "running" || roomList[i].roomStatus == "starting") {
+                isDisabled = true;
+                if (multiPlayer.selectedRomNum == i) {
+                    multiPlayer.selectedRomNum = 0;
+                }
+            } else {
+                isDisabled = false;
+            }
             var key = roomList[i].roomName + this.statusMessages[roomList[i].roomStatus];
             $list.append($("<option></option>").prop("disabled", roomList[i].roomStatus == "running" || roomList[i].roomStatus == "starting").prop("value", (i + 1)).text(key).addClass(roomList[i].roomStatus).prop("selected", false));
+        }
+        //keep selected, must verify by server as room number
+        if (multiPlayer.selectedRomNum != 0) {
+            dom.multiPlayerGamesList.val(multiPlayer.selectedRomNum).prop('selected', true);
         }
     },
     /*************--Socket Handling--*******************/
@@ -113,13 +147,13 @@
     handleSocketMessage: function (message) {
         var messageObject = JSON.parse(message);
         switch (messageObject.type) {
-            case "room_list":
+            case socketTag.rooms:
                 multiPlayer.updateRoomStatus(messageObject);
                 multiPlayer.joinedMaxPlayer = messageObject.joinedMaxPlayer;
-                if (messageObject.reactivate) {
-                    document.getElementById('multiPlayerGamesList').removeAttribute('disabled');
-                    document.getElementById('multiPlayerJoin').removeAttribute('disabled');
-                }
+//                if (messageObject.reactivate) {
+//                    document.getElementById('multiPlayerGamesList').removeAttribute('disabled');
+//                    document.getElementById('multiPlayerJoin').removeAttribute('disabled');
+//                }
                 break;
         }
     }

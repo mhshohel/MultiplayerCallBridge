@@ -1,8 +1,8 @@
 /**Cached of all dom elements, only contains variables**/
 var dom;
 dom = {
-    gameTitle: $("#gameTitle").html("Callbridge"),
-    gameSlogan: $('#subTitle').html("A multiplayer card game"),
+    gameTitle: $("#gameTitle").html("Application"), //Callbridge
+    gameSlogan: $('#subTitle').html("A game application, by Shohel"), //A multiplayer card game
     //gameStatus: $('#gameStatus').css({"position": "fixed", "top": "200px", "left": "180px"}),
     gameStatusScreen: $('#statusScreen'),
     statusHeaderText: $('#statusHeaderText'),

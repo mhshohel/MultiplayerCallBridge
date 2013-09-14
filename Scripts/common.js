@@ -73,15 +73,20 @@ var common = {
         dom.menu.hide();
     },
     showLobby: function () {
-        dom.lobby.html("<input id='clientName' type='text' maxlength='15' placeholder='Enter your name.'><br/><select id='multiPlayerGamesList' size='10'></select><input type='button' id='multiPlayerJoin' onclick='' value='Join'/><input type='button' id='multiPlayerCancel' onclick='common.gameCancel()' value='Cancel'/>");
+        dom.lobby.html("<input id='clientName' type='text' maxlength='15' placeholder='Enter your name.'><br/><select id='multiPlayerGamesList' size='10'></select><input type='button' id='multiPlayerJoin' onclick='multiPlayer.join()' value='Join'/><input type='button' id='multiPlayerCancel' onclick='' value='Cancel'/>");
+        dom.clientName = $("#clientName");
+        dom.multiPlayerGamesList = $("#multiPlayerGamesList");
         dom.multiplayerLobby.show();
     },
     hideLobby: function () {
+        dom.clientName = undefined;
+        dom.multiPlayerGamesList = undefined;
         dom.lobby.html("");
         dom.multiplayerLobby.hide();
     },
     gameJoin: function () {
-
+        common.hideGameTitle();
+        common.hideLobby();
     },
     gameCancel: function () {
         common.hideLobby();
@@ -105,7 +110,6 @@ var common = {
     },
     playButtonOnClick: function () {
         dom.playButton.on('click', function () {
-            common.hideGameMenu();
             multiPlayer.start();
         });
     },
@@ -158,6 +162,12 @@ common.dialog = function () {
         }
     });
     dom.dialogBox.dialog('open');
+}
+
+/**Socket tag**/
+var socketTag = {
+    rooms: "room_list",
+    joinRoom: "join_room"
 }
 
 /**Some Global functions
