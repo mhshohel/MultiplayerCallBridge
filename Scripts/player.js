@@ -2,7 +2,7 @@ var Player;
 Player = function (isLocal, name, hostNum, clientId, gameRoomNumber) {
     //cards will contain
     //x, y, card number, suite, svalue, cvalue, sname, points
-    var cards = [], prevCards = [], countUndefinedCard = 0,
+    var cards = [], prevCards = [], countUndefinedCard = 0, totalPoints = 0, currentBid = 0, currentScore = 0,
         emptyPlayerCards = function () {
             if (isLocal) {
                 cards = [];
@@ -10,7 +10,12 @@ Player = function (isLocal, name, hostNum, clientId, gameRoomNumber) {
         };
     return{
         isLocal: isLocal,
-        name: name,
+        getName: function () {
+            return name;
+        },
+        totalPoints: totalPoints,
+        currentBid: currentBid,
+        currentScore: currentScore,
         hostNum: hostNum,
         clientId: clientId,
         gameRoomNumber: gameRoomNumber,
@@ -40,7 +45,6 @@ Player = function (isLocal, name, hostNum, clientId, gameRoomNumber) {
         pushCards: function (x, y, w, h, card, t) {
             //x: x-axis, y: y-axis, w: width, h: height
 //            if (isLocal) {
-            console.log("Adding");
             cards.push(
                 {
                     x: x,

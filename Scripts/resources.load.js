@@ -12,6 +12,7 @@ Modernizr.load([
             "Scripts/common.js",
             "Scripts/loader.js",
             "Scripts/cards.js",
+            "http://localhost:8000/socket.io/socket.io.js",
             "Scripts/multiplayer.js",
             "Scripts/player.js",
             "Scripts/game.js"

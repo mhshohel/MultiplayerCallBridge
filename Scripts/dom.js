@@ -16,5 +16,7 @@ dom = {
     dialogBox: $("#dialog-message"),
     dialogMessageOne: $("#dialog-messageOne"),
     dialogMessageTwo: $("#dialog-messageTwo"),
-    canvas: $("#gameCanvas")
+    canvas: $("#gameCanvas"),
+    multiplayerLobby: $("#multiPlayerLobbyScreen"),
+    lobby: $("#lobby")
 };

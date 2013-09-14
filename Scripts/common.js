@@ -64,13 +64,28 @@ var common = {
     },
     hideGameTitle: function () {
         dom.gameTitle.hide();
-        dom.gameSlogan.hide('slow');
+        dom.gameSlogan.hide();
     },
     showGameMenu: function () {
-        dom.menu.fadeIn('slow');
+        dom.menu.fadeIn();
     },
     hideGameMenu: function () {
         dom.menu.hide();
+    },
+    showLobby: function () {
+        dom.lobby.html("<input id='clientName' type='text' maxlength='15' placeholder='Enter your name.'><br/><select id='multiPlayerGamesList' size='10'></select><input type='button' id='multiPlayerJoin' onclick='' value='Join'/><input type='button' id='multiPlayerCancel' onclick='common.gameCancel()' value='Cancel'/>");
+        dom.multiplayerLobby.show();
+    },
+    hideLobby: function () {
+        dom.lobby.html("");
+        dom.multiplayerLobby.hide();
+    },
+    gameJoin: function () {
+
+    },
+    gameCancel: function () {
+        common.hideLobby();
+        common.showGameMenu();
     },
     showGameStatus: function (header, footer) {
         dom.statusHeaderText.html((header == undefined) ? "" : header);
@@ -82,7 +97,7 @@ var common = {
         dom.statusFooterText.html("");
         dom.gameStatusScreen.hide('slow');
     },
-//click event for Rules, Play
+    //click event for Rules, Play
     rulesButtonOnClick: function () {
         dom.rulesButton.on('click', function () {
             common.onInfoMessage("Will be describe soon, please come back soon", "By: Shohel Shamim");
@@ -90,7 +105,6 @@ var common = {
     },
     playButtonOnClick: function () {
         dom.playButton.on('click', function () {
-            common.hideGameTitle();
             common.hideGameMenu();
             multiPlayer.start();
         });
@@ -117,7 +131,7 @@ var common = {
 /**Dialogbox, use it to show message to the user**/
 common.dialog = function () {
     dom.dialogBox.dialog({
-        title: "Multiplayer Callbridge",
+        title: "Callbridge",
         autoOpen: false,
         resizable: false,
         draggable: true,
