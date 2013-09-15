@@ -89,7 +89,7 @@
         var name = dom.clientName.val();
         if (name == undefined || name == "") {
             common.onInfoMessage("Please enter your name.");
-        } else if (name.length < 5) {
+        } else if (name.trim().length < 5) {
             common.onInfoMessage("Name should be at least 5 character long.");
         } else {
             var selectedRoom = dom.multiPlayerGamesList.val();
@@ -164,7 +164,17 @@
 //                }
                 break;
             case socketTag.onError:
-                common.onAlertMessage(messageObject.messageOne, messageObject.messageTwo);
+                switch (messageObject.messageType) {
+                    case "error":
+                        common.onAlertMessage(messageObject.messageOne, messageObject.messageTwo);
+                        break;
+                    case "info":
+                        common.onInfoMessage(messageObject.messageOne, messageObject.messageTwo);
+                        break;
+                    default:
+                        common.dialogMessageContainer(messageObject.messageOne, messageObject.messageTwo);
+                        break;
+                }
                 break;
         }
     }

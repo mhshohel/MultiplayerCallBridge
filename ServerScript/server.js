@@ -10,12 +10,17 @@
         },
         action: {
             toClient: "toClient",
+            toRoomClients: "toRoomClients",
             toAll: "toAll"
         },
         request: {
             rooms: "room_list",
             joinRoom: "join_room",
             onError: "onError"
+        },
+        messageType: {
+            error: "error",
+            info: "info"
         }
     },
     gameStatus = {
@@ -33,12 +38,14 @@ for (var i = 0; i < roomSize; i++) {
         //room id or num starts from 0
         roomId: i,
         roomName: ("Game " + (i + 1) + ". "),
+        isRunning: false,
         status: gameStatus.empty,
         statusMessage: "Open",
         players: [],
         requestCounter: 0,
         currentTurn: undefined,
         reset: function () {
+            this.isRunning = false;
             this.status = gameStatus.empty;
             this.statusMessage = "Open";
             this.players = [];
@@ -60,14 +67,14 @@ function init() {
     socket = io.sockets;
     //configure Socket.IO
     io.configure(function () {
-        //only websockets not supported by Azure
+        //currently(aug. 2013) websockets is not supported by Azure
         //io.set('transports', ['websocket']);
-        //others
-        io.set('transports', ['xhr-polling', 'jsonp-polling', 'htmlfile']);
+        //others are ['xhr-polling', 'jsonp-polling', 'htmlfile']
+        io.set('transports', ['xhr-polling']);
         // Restrict log output
         //The amount of detail that the server should output to the logger.
         //0 - error, 1 - warn, 2 - info, 3 - debug
-        io.set("log level", 3);
+        io.set("log level", 2);
         //The maximum duration of one HTTP poll, if it exceeds this limit it will be closed.
         //use if transports are: xhr-polling, jsonp-polling
         io.set("polling duration", 10);
@@ -103,6 +110,8 @@ function onRequestGameRoomList(data) {
 function onUpdateRoom(action, client, reactivate, disconnectedRoomId, message) {
     if (action == socketTag.action.toClient) {
         client.emit(socketTag.request.rooms, sendGameListToClient(reactivate, disconnectedRoomId, message));
+    } else if (action == socketTag.action.toRoomClients) {
+
     } else if (action == socketTag.action.toAll) {
         socket.emit(socketTag.request.rooms, sendGameListToClient(reactivate, disconnectedRoomId, message));
     }
@@ -111,24 +120,29 @@ function onUpdateRoom(action, client, reactivate, disconnectedRoomId, message) {
 /**add client information to the room**/
 function onClientJoinInGameRoom(data) {
     var message = JSON.parse(data);
-    var hasPlayer = alreadyInGameRoom(this.id);
-
-    if (gameRooms[message.roomId].players.length != maxPlayerEachRoom && !hasPlayer) {
-        handleRoom(message, this);
-        try {
-            onUpdateRoom(socketTag.action.toAll, this, false);
-        } catch (e) {
-        }
+    if (message.name == undefined || message.name == "") {
+        onError(this, "Please enter your name.", "Please do not try to change the game contents.", socketTag.messageType.error);
+    } else if (message.name.trim().length < 5) {
+        onError(this, "Name should be at least 5 character long.", "Please do not try to change the game contents.", socketTag.messageType.error);
     } else {
-        if (hasPlayer) {
+        var hasPlayer = alreadyInGameRoom(this.id);
+        if (gameRooms[message.roomId].players.length != maxPlayerEachRoom && !hasPlayer) {
+            handleRoom(message, this);
             try {
-                onError(this, "You are already in another room.", "Please do not try to change the game contents.");
+                onUpdateRoom(socketTag.action.toAll, this, false);
             } catch (e) {
             }
         } else {
-            try {
-                onError(this, "Maximum player joined in selected room.", "Please do not try to change the game contents.");
-            } catch (e) {
+            if (hasPlayer) {
+                try {
+                    onError(this, "You are already in another room.", "Please do not try to change the game contents.", socketTag.messageType.error);
+                } catch (e) {
+                }
+            } else {
+                try {
+                    onError(this, "Maximum player joined in selected room.", "Please do not try to change the game contents.", socketTag.messageType.error);
+                } catch (e) {
+                }
             }
         }
     }
@@ -153,10 +167,10 @@ function onClientJoinInGameRoom(data) {
 
 /**return tru or false if client id is already in the room**/
 function alreadyInGameRoom(id) {
-    for (var i = 0; i < roomSize; i++) {
+    for (var i = 0; i < gameRooms.length; i++) {
         var players = gameRooms[i].players;
         for (var j = 0; j < players.length; j++) {
-            if (gameRooms[i].players[j].getId == id) {
+            if (players[j].getId == id) {
                 return true;
             }
         }
@@ -165,9 +179,8 @@ function alreadyInGameRoom(id) {
 }
 
 /**send error message if someone try to change game**/
-function onError(client, messageOne, messageTwo) {
-    var message = JSON.stringify({type: socketTag.request.onError, messageOne: messageOne, messageTwo: messageTwo});
-
+function onError(client, messageOne, messageTwo, messageType) {
+    var message = JSON.stringify({type: socketTag.request.onError, messageOne: messageOne, messageTwo: messageTwo, messageType: messageType});
     if (client != undefined) {
         client.emit(socketTag.request.onError, message);
     }
@@ -205,49 +218,77 @@ function onClientLeftGameRoom(data) {
  * use io.connect('http://localhost:8000', {'sync disconnect on unload': true, 'sync disconnect on pagehide ': true}
  * in client side to detect disconnect immediately, otherwise have to wait till heartbeat time (pagehide os for IOS support);
  * WARNING: The solution is probably to fix socket.io-client to listen for both unload and pagehide events, because the unload event may not work as expected for back and forward optimization (IOS)**/
-function onClientDisconnect(data) {
-
-    var a = "S";
-
-
-//    var players;
-//    for (var i = 0; i < gameRooms.length; i++) {
-//        players = gameRooms[i].players;
-//        for (var j = 0; j < players.length; j++) {
-//            if (players[j].getId() == this.id) {
-//                resetGameRoom(i);
-//                onUpdateRoom(true, gameRooms[i].roomId - 1, "Connection Error! Your opponent disconnected from server.");
-//                break;
-//            }
-//        }
-//    }
+function onClientDisconnect() {
+    //if game status is not running then remove player otherwise keep cards info only change client
+    //send as disconnection and if game is running then pause game otherwise hold
+    var players = this.id,
+        haveTo = [
+            {update: false, pause: false}
+        ];//make sure everything is going perfect without crash
+    for (var i = 0; i < gameRooms.length; i++) {
+        players = gameRooms[i].players;
+        for (var j = 0; j < players.length; j++) {
+            if (players[j].getId == this.id) {
+                //if game is running then send message to all clients of that room to pause game
+                if (players.length == 1) {
+                    gameRooms[i].reset();
+                    haveTo.update = true;
+                } else if (players.length < maxPlayerEachRoom) {
+                    players.splice(j, 1);
+                    haveTo.update = true;
+                    setGameRoomStatus(gameRooms[i]);
+                } else if (players.length == maxPlayerEachRoom) {
+                    players.splice(j, 1);
+                    haveTo.update = true;
+                    setGameRoomStatus(gameRooms[i]);
+                }
+                haveTo.pause = (gameRooms[i].isRunning) ? true : false;
+                if (haveTo.update) {
+                    try {
+                        onUpdateRoom(socketTag.action.toAll, this);
+                    } catch (e) {
+                    }
+                }
+                if (haveTo.pause) {
+                    //pause other players
+                } else {
+                    try {
+                        onError(this, "Maximum player joined in selected room.", "Please do not try to change the game contents.", socketTag.messageType.info);
+                    } catch (e) {
+                    }
+                }
+                break;
+            }
+        }
+    }
 }
 
 /**Handle game room according to the current room status**/
 function handleRoom(message, clientObject) {
-    var gameRoom = gameRooms[message.roomId];
+    var gameRoom = gameRooms[message.roomId],
+        name = message.name;
+    for (var i = 0; i < gameRoom.players.length; i++) {
+        if (name == gameRoom.players[i].getClientName) {
+            //add extra value if duplicate name found
+            name = name + "_" + gameRoom.players.length;
+            break;
+        }
+    }
     switch (gameRoom.status) {
         //both player slots are empty
         case gameStatus.empty:
-            gameRoom.players.push(new Player(message.name, clientObject, 1));
+            gameRoom.players.push(new Player(name, clientObject, 1));
             gameRoom.status = gameStatus.waiting;
             gameRoom.statusMessage = "Awaiting for second player";
             break;
         //at least one player slot is empty, mostly playerOne
         case gameStatus.waiting:
             if (gameRoom.players.length != maxPlayerEachRoom) {
-                gameRoom.players.push(new Player(message.name, clientObject, 2));
-                if (gameRoom.players.length == 2) {
-                    gameRoom.statusMessage = "Awaiting for third player";
-                } else if (gameRoom.players.length == 3) {
-                    gameRoom.statusMessage = "Awaiting for forth player";
-                } else if (gameRoom.players.length == maxPlayerEachRoom) {
-                    gameRoom.status = gameStatus.starting;
-                    gameRoom.statusMessage = "Game starting";
-                }
+                gameRoom.players.push(new Player(name, clientObject, 2));
+                setGameRoomStatus(gameRoom);
             } else {
                 try {
-                    onError(clientObject, "Maximum player joined in selected room.", "Please do not try to change the game contents.");
+                    onError(clientObject, "Maximum player joined in selected room.", "Please do not try to change the game contents.", socketTag.messageType.error);
                 } catch (e) {
                 }
             }
@@ -256,12 +297,26 @@ function handleRoom(message, clientObject) {
         case gameStatus.starting:
             if (gameRoom.players.length == maxPlayerEachRoom) {
                 gameRoom.status = gameStatus.running;
-                gameRoom.statusMessage = "Game runing";
+                gameRoom.statusMessage = "Game is running";
             }
             break;
         //run game
         case gameStatus.running:
             break;
+    }
+}
+
+/**Set status message of game room**/
+function setGameRoomStatus(gameRoom) {
+    if (gameRoom.players.length == 1) {
+        gameRoom.statusMessage = "Awaiting for second player";
+    } else if (gameRoom.players.length == 2) {
+        gameRoom.statusMessage = "Awaiting for third player";
+    } else if (gameRoom.players.length == 3) {
+        gameRoom.statusMessage = "Awaiting for forth player";
+    } else if (gameRoom.players.length == maxPlayerEachRoom) {
+        gameRoom.status = gameStatus.starting;
+        gameRoom.statusMessage = "Game starting";
     }
 }
 

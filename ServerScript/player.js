@@ -4,12 +4,6 @@
         client = clientInfo,
         host = hostNum,
         id = clientInfo.id,
-//        getClient = function () {
-//            return client;
-//        },
-//        getId = function () {
-//            return id;
-//        },
         addScore = function (scr) {
             score += scr;
         },
