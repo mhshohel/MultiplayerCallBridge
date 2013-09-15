@@ -154,10 +154,10 @@ common.dialog = function () {
                 if (common.onOkCallback != undefined) {
                     common.onOkCallback();
                 }
-                dom.dialogBox.dialog("close");
-                common.onOkCallback = undefined;
                 dom.dialogMessageOne.html("");
                 dom.dialogMessageTwo.html("");
+                dom.dialogBox.dialog("close");
+                common.onOkCallback = undefined;
             }
         }
     });
@@ -167,7 +167,8 @@ common.dialog = function () {
 /**Socket tag**/
 var socketTag = {
     rooms: "room_list",
-    joinRoom: "join_room"
+    joinRoom: "join_room",
+    onError: "onError"
 }
 
 /**Some Global functions

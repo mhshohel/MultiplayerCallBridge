@@ -1,10 +1,10 @@
 ﻿var multiPlayer = {
     socket: undefined,
     statusMessages: {
-        'starting': 'Game Starting',
-        'running': 'Game in Progress',
-        'waiting': 'Awaiting second player',
-        'empty': 'Open'
+        'starting': 'starting',
+        'running': 'running',
+        'waiting': 'waiting',
+        'empty': 'empty'
     },
     /**Init before play game**/
     start: function () {
@@ -21,6 +21,9 @@
                 multiPlayer.sendSocketMessage({type: socketTag.rooms, action: "toClient"});
                 //initialize game room list
                 multiPlayer.receiveSocketMessage(socketTag.rooms);
+                //show error message that comes from server
+                multiPlayer.receiveSocketMessage(socketTag.onError);
+
                 common.showLobby();
                 //dom.multiplayerLobby.show();
                 //dom.multiplayerLobby.show();
@@ -89,11 +92,13 @@
         } else {
             var selectedRoom = dom.multiPlayerGamesList.val();
             if (selectedRoom) {
-//                multiPlayer.sendSocketMessage({type: socketTag.joinRoom, roomId: selectedRoom - 1, foodLength: game.foods.length, boardHeight: game.boardHeight, boardWidth: game.boardWidth, contentSize: game.size, space: game.space});
+                multiPlayer.sendSocketMessage({type: socketTag.joinRoom, roomId: selectedRoom - 1, name: name});
 //                $('#multiPlayerGamesList').prop('disabled', true);
 //                $('#multiPlayerJoin').prop('disabled', true);
 //            } else {
 //                game.showMessageBox("Please select a game room to join.");
+            }else{
+                common.onInfoMessage("Please select a game room first.")
             }
         }
     },
@@ -116,7 +121,7 @@
         $list.empty(); // remove old options
         var isDisabled = false;
         for (var i = 0; i < roomList.length; i++) {
-            if (roomList[i].roomStatus == "running" || roomList[i].roomStatus == "starting") {
+            if (roomList[i].roomStatus == this.statusMessages.running || roomList[i].roomStatus == this.statusMessages.starting) {
                 isDisabled = true;
                 if (multiPlayer.selectedRomNum == i) {
                     multiPlayer.selectedRomNum = 0;
@@ -124,9 +129,10 @@
             } else {
                 isDisabled = false;
             }
-            var key = roomList[i].roomName + this.statusMessages[roomList[i].roomStatus];
+            var key = roomList[i].roomName + roomList[i].roomStatusMessage;
             $list.append($("<option></option>").prop("disabled", roomList[i].roomStatus == "running" || roomList[i].roomStatus == "starting").prop("value", (i + 1)).text(key).addClass(roomList[i].roomStatus).prop("selected", false));
         }
+        dom.clientName.focus();
         //keep selected, must verify by server as room number
         if (multiPlayer.selectedRomNum != 0) {
             dom.multiPlayerGamesList.val(multiPlayer.selectedRomNum).prop('selected', true);
@@ -154,6 +160,9 @@
 //                    document.getElementById('multiPlayerGamesList').removeAttribute('disabled');
 //                    document.getElementById('multiPlayerJoin').removeAttribute('disabled');
 //                }
+                break;
+            case socketTag.onError:
+                common.onAlertMessage(messageObject.messageOne, messageObject.messageTwo);
                 break;
         }
     }

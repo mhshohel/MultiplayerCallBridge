@@ -1,14 +1,15 @@
-﻿var Player = function (clientInfo, hostNum) {
-    var timer = 999, score = 0;
-    var client = clientInfo,
+﻿var Player = function (name, clientInfo, hostNum) {
+    var score = 0,
+        clientName = name,
+        client = clientInfo,
         host = hostNum,
-        id = client.id,
-        getClient = function () {
-            return client;
-        },
-        getId = function () {
-            return id;
-        },
+        id = clientInfo.id,
+//        getClient = function () {
+//            return client;
+//        },
+//        getId = function () {
+//            return id;
+//        },
         addScore = function (scr) {
             score += scr;
         },
@@ -17,10 +18,10 @@
         };
     // Define which variables and methods can be accessed
     return {
-        getClient: getClient,
-        getId: getId,
+        getClientName: clientName,
+        getClient: client,
+        getId: id,
         host: host,
-        timer: timer,
         getScore: getScore,
         addScore: addScore
     }
