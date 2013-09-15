@@ -5,7 +5,8 @@
     Player = require("./Player").Player,
     socketTag = {
         command: {
-            connection: "connection"
+            connection: 'connection',
+            disconnect: 'disconnect'
         },
         action: {
             toClient: "toClient",
@@ -24,10 +25,9 @@
         running: "running"
     },
     socket, roomSize = 15, maxPlayerEachRoom = 4,
-//initialize game room
-//starting: Game Starting, running: Game in Progress, waiting: Awaiting second player,
-//empty: Open
-    gameRooms = [];
+    /**initialize game room
+     *starting: Game Starting, running: Game in Progress, waiting: Awaiting second player,empty: Open**/
+        gameRooms = [];
 for (var i = 0; i < roomSize; i++) {
     gameRooms.push({
         //room id or num starts from 0
@@ -54,7 +54,7 @@ function handler(req, res) {
     util.log('Socket.IO connected on port: ' + port);
 }
 
-//Game Initialisation
+/**Game Initialisation**/
 function init() {
     //setup Socket.IO to listing on default port 8000
     socket = io.sockets;
@@ -80,8 +80,7 @@ function init() {
 function setEventHandelers() {
     // open the socket connection
     socket.on(socketTag.command.connection, function (client) {
-        //send user game room information
-//        onUpdateRoom(false);
+        client.on(socketTag.command.disconnect, onClientDisconnect);
         client.on(socketTag.request.rooms, onRequestGameRoomList);
         client.on(socketTag.request.joinRoom, onClientJoinInGameRoom);
 //        client.on('update_room', onUpdateRoom);
@@ -90,7 +89,7 @@ function setEventHandelers() {
     });
 }
 
-//return game room list
+/**return game room list**/
 function onRequestGameRoomList(data) {
     //action could be "first", means it will send data to the requested clients, otherwise to all clients
     var action = (JSON.parse(data)).action;
@@ -100,7 +99,7 @@ function onRequestGameRoomList(data) {
     }
 }
 
-//update all users room
+/**update all users room**/
 function onUpdateRoom(action, client, reactivate, disconnectedRoomId, message) {
     if (action == socketTag.action.toClient) {
         client.emit(socketTag.request.rooms, sendGameListToClient(reactivate, disconnectedRoomId, message));
@@ -109,7 +108,7 @@ function onUpdateRoom(action, client, reactivate, disconnectedRoomId, message) {
     }
 }
 
-//add client information to the room
+/**add client information to the room**/
 function onClientJoinInGameRoom(data) {
     var message = JSON.parse(data);
     var hasPlayer = alreadyInGameRoom(this.id);
@@ -152,7 +151,7 @@ function onClientJoinInGameRoom(data) {
 //    }
 }
 
-//return tru or false if client id is already in the room
+/**return tru or false if client id is already in the room**/
 function alreadyInGameRoom(id) {
     for (var i = 0; i < roomSize; i++) {
         var players = gameRooms[i].players;
@@ -165,7 +164,7 @@ function alreadyInGameRoom(id) {
     return false;
 }
 
-//send error message if someone try to change game
+/**send error message if someone try to change game**/
 function onError(client, messageOne, messageTwo) {
     var message = JSON.stringify({type: socketTag.request.onError, messageOne: messageOne, messageTwo: messageTwo});
 
@@ -177,7 +176,7 @@ function onError(client, messageOne, messageTwo) {
     }
 }
 
-//initialize game
+/**initialize game**/
 function initGame(id) {
 //    gameRooms[id].status = gameStatus.running;
 //    for (var i = 0; i < gameRooms[id].players.length; i++) {
@@ -185,7 +184,7 @@ function initGame(id) {
 //    }
 }
 
-//add client information to the room
+/**add client information to the room**/
 function onClientLeftGameRoom(data) {
 //    var message = JSON.parse(data);
 //    var room = gameRooms[message.roomId];
@@ -202,8 +201,15 @@ function onClientLeftGameRoom(data) {
 //    }
 }
 
-//client disconnect
-function onClientDisconnect() {
+/**client disconnect
+ * use io.connect('http://localhost:8000', {'sync disconnect on unload': true, 'sync disconnect on pagehide ': true}
+ * in client side to detect disconnect immediately, otherwise have to wait till heartbeat time (pagehide os for IOS support);
+ * WARNING: The solution is probably to fix socket.io-client to listen for both unload and pagehide events, because the unload event may not work as expected for back and forward optimization (IOS)**/
+function onClientDisconnect(data) {
+
+    var a = "S";
+
+
 //    var players;
 //    for (var i = 0; i < gameRooms.length; i++) {
 //        players = gameRooms[i].players;
@@ -217,6 +223,7 @@ function onClientDisconnect() {
 //    }
 }
 
+/**Handle game room according to the current room status**/
 function handleRoom(message, clientObject) {
     var gameRoom = gameRooms[message.roomId];
     switch (gameRoom.status) {
@@ -258,7 +265,7 @@ function handleRoom(message, clientObject) {
     }
 }
 
-//send room list to the client
+/**send room list to the client**/
 function sendGameListToClient(reactivate, disconnectedRoomId, errorMessage) {
     var roomList = [];
     var hasMaxPlayer = false;

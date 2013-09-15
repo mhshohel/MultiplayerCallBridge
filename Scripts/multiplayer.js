@@ -12,7 +12,9 @@
         //add 1 with roomId of server to get options val
         multiPlayer.selectedRomNum = 0;
         try {
-            multiPlayer.socket = io.connect('http://localhost:8000');
+            /**{'sync disconnect on unload': true} to get the disconnection of client immediately on xhr-polling
+             * WARNING: The solution is probably to fix socket.io-client to listen for both unload and pagehide events, because the unload event may not work as expected for back and forward optimization (IOS).**/
+            multiPlayer.socket = io.connect('http://localhost:8000', {'sync disconnect on unload': true, 'sync disconnect on pagehide ': true});
             if (multiPlayer.socket == undefined) {
                 common.onAlertMessage("Error connecting to the server.");
             } else {
@@ -97,7 +99,7 @@
 //                $('#multiPlayerJoin').prop('disabled', true);
 //            } else {
 //                game.showMessageBox("Please select a game room to join.");
-            }else{
+            } else {
                 common.onInfoMessage("Please select a game room first.")
             }
         }
