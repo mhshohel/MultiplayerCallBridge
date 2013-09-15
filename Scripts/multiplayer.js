@@ -92,7 +92,7 @@
         } else if (name.trim().length < 5) {
             common.onInfoMessage("Name should be at least 5 character long.");
         } else {
-            var selectedRoom = dom.multiPlayerGamesList.val();
+            var selectedRoom = multiPlayer.selectedRomNum;
             if (selectedRoom) {
                 multiPlayer.sendSocketMessage({type: socketTag.joinRoom, roomId: selectedRoom - 1, name: name});
 //                $('#multiPlayerGamesList').prop('disabled', true);
@@ -137,7 +137,9 @@
         dom.clientName.focus();
         //keep selected, must verify by server as room number
         if (multiPlayer.selectedRomNum != 0) {
-            dom.multiPlayerGamesList.val(multiPlayer.selectedRomNum).prop('selected', true);
+            if (dom.multiPlayerGamesList.val(multiPlayer.selectedRomNum).is(':disabled')) {
+                dom.multiPlayerGamesList.val(multiPlayer.selectedRomNum).prop('selected', true);
+            }
         }
     },
     /*************--Socket Handling--*******************/

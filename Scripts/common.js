@@ -76,10 +76,20 @@ var common = {
         dom.lobby.html("<input id='clientName' type='text' maxlength='15' placeholder='Enter your name.'><br/><select id='multiPlayerGamesList' size='10'></select><input type='button' id='multiPlayerJoin' onclick='multiPlayer.join()' value='Join'/><input type='button' id='multiPlayerCancel' onclick='' value='Cancel'/>");
         dom.clientName = $("#clientName");
         dom.multiPlayerGamesList = $("#multiPlayerGamesList");
+        /**Store selected item index on keyUp or onClick**/
+        dom.multiPlayerGamesList.keyup(function (e) {
+            if (e.keyCode == 38 || e.keyCode == 40) {
+                multiPlayer.selectedRomNum = dom.multiPlayerGamesList.val();
+            }
+        });
+        dom.multiPlayerGamesList.on('click', function () {
+            multiPlayer.selectedRomNum = dom.multiPlayerGamesList.val();
+        });
         dom.multiplayerLobby.show();
     },
     hideLobby: function () {
         dom.clientName = undefined;
+        dom.multiPlayerGamesList.off;
         dom.multiPlayerGamesList = undefined;
         dom.lobby.html("");
         dom.multiplayerLobby.hide();
@@ -173,6 +183,7 @@ var socketTag = {
 
 /**Some Global functions
  ---------------------------------------**/
+/**Resize window**/
 $(window).resize(function () {
     //Resize dialog box on resize window
     try {
