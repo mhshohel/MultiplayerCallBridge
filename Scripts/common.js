@@ -73,7 +73,7 @@ var common = {
         dom.menu.hide();
     },
     showLobby: function () {
-        dom.lobby.html("<input id='clientName' type='text' maxlength='15' placeholder='Enter your name.'><br/><select id='multiPlayerGamesList' size='10'></select><input type='button' id='multiPlayerJoin' onclick='multiPlayer.join()' value='Join'/><input type='button' id='multiPlayerCancel' onclick='' value='Cancel'/>");
+        dom.lobby.html("<input id='clientName' type='text' maxlength='15' placeholder='Enter your name.'><br/><select id='multiPlayerGamesList' size='10'></select><input type='button' id='multiPlayerJoin' onclick='multiPlayer.join()' value='Join'/><input type='button' id='multiPlayerCancel' onclick='multiPlayer.cancel()' value='Cancel'/>");
         dom.clientName = $("#clientName");
         dom.multiPlayerGamesList = $("#multiPlayerGamesList");
         /**Store selected item index on keyUp or onClick**/
@@ -93,13 +93,6 @@ var common = {
         dom.multiPlayerGamesList = undefined;
         dom.lobby.html("");
         dom.multiplayerLobby.hide();
-    },
-    gameJoin: function () {
-        common.hideGameTitle();
-        common.hideLobby();
-    },
-    gameCancel: function () {
-        common.hideLobby();
         common.showGameMenu();
     },
     showGameStatus: function (header, footer) {
@@ -178,7 +171,8 @@ common.dialog = function () {
 var socketTag = {
     rooms: "room_list",
     joinRoom: "join_room",
-    onError: "onError"
+    onError: "onError",
+    onCancel: "onCancel"
 }
 
 /**Some Global functions

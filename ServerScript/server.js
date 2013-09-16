@@ -16,11 +16,13 @@
         request: {
             rooms: "room_list",
             joinRoom: "join_room",
-            onError: "onError"
+            onError: "onError",
+            onCancel: "onCancel"
         },
         messageType: {
             error: "error",
-            info: "info"
+            info: "info",
+            pause: "pause"
         }
     },
     gameStatus = {
@@ -28,6 +30,15 @@
         waiting: "waiting",
         starting: "starting",
         running: "running"
+    },
+    messageToSend = {
+        nameRequired: "Please enter your name.",
+        nameLength: "Name should be at least 5 character long.",
+        roomNotSelected: "Please select a game room.",
+        roomAlreadyJoined: "You are already in another room.",
+        notInSelectedRoom: "You are not joined in the selected room.",
+        maxPlayerInRoom: "Maximum player joined in the selected room.",
+        default: "Please do not try to change the game contents."
     },
     socket, roomSize = 15, maxPlayerEachRoom = 4,
     /**initialize game room
@@ -74,7 +85,7 @@ function init() {
         // Restrict log output
         //The amount of detail that the server should output to the logger.
         //0 - error, 1 - warn, 2 - info, 3 - debug
-        io.set("log level", 2);
+        io.set("log level", 3);
         //The maximum duration of one HTTP poll, if it exceeds this limit it will be closed.
         //use if transports are: xhr-polling, jsonp-polling
         io.set("polling duration", 10);
@@ -85,67 +96,80 @@ function init() {
 }
 
 function setEventHandelers() {
-    // open the socket connection
-    socket.on(socketTag.command.connection, function (client) {
-        client.on(socketTag.command.disconnect, onClientDisconnect);
-        client.on(socketTag.request.rooms, onRequestGameRoomList);
-        client.on(socketTag.request.joinRoom, onClientJoinInGameRoom);
+    try {
+        // open the socket connection
+        socket.on(socketTag.command.connection, function (client) {
+            client.on(socketTag.command.disconnect, onClientDisconnect);
+            client.on(socketTag.request.rooms, onRequestGameRoomList);
+            client.on(socketTag.request.joinRoom, onClientJoinInGameRoom);
+            client.on(socketTag.request.onCancel, onClientLeftGameRoom);
 //        client.on('update_room', onUpdateRoom);
 //        client.on('cancel_room', onClientLeftGameRoom);
 //        client.on('disconnect', onClientDisconnect);
-    });
+        });
+    } catch (err) {
+    }
 }
 
 /**return game room list**/
 function onRequestGameRoomList(data) {
-    //action could be "first", means it will send data to the requested clients, otherwise to all clients
-    var action = (JSON.parse(data)).action;
     try {
-        onUpdateRoom(action, this, false);
-    } catch (e) {
+        //action could be "first", means it will send data to the requested clients, otherwise to all clients
+        var action = (JSON.parse(data)).action;
+        try {
+            onUpdateRoom(action, this, false);
+        } catch (e) {
+        }
+    } catch (err) {
     }
 }
 
 /**update all users room**/
 function onUpdateRoom(action, client, reactivate, disconnectedRoomId, message) {
-    if (action == socketTag.action.toClient) {
-        client.emit(socketTag.request.rooms, sendGameListToClient(reactivate, disconnectedRoomId, message));
-    } else if (action == socketTag.action.toRoomClients) {
-
-    } else if (action == socketTag.action.toAll) {
-        socket.emit(socketTag.request.rooms, sendGameListToClient(reactivate, disconnectedRoomId, message));
+    try {
+        if (action == socketTag.action.toClient) {
+            client.emit(socketTag.request.rooms, sendGameListToClient(reactivate, disconnectedRoomId, message));
+        } else if (action == socketTag.action.toRoomClients) {
+            //send to rooms user...
+        } else if (action == socketTag.action.toAll) {
+            socket.emit(socketTag.request.rooms, sendGameListToClient(reactivate, disconnectedRoomId, message));
+        }
+    } catch (err) {
     }
 }
 
 /**add client information to the room**/
 function onClientJoinInGameRoom(data) {
-    var message = JSON.parse(data);
-    if (message.name == undefined || message.name == "") {
-        onError(this, "Please enter your name.", "Please do not try to change the game contents.", socketTag.messageType.error);
-    } else if (message.name.trim().length < 5) {
-        onError(this, "Name should be at least 5 character long.", "Please do not try to change the game contents.", socketTag.messageType.error);
-    } else {
-        var hasPlayer = alreadyInGameRoom(this.id);
-        if (gameRooms[message.roomId].players.length != maxPlayerEachRoom && !hasPlayer) {
-            handleRoom(message, this);
-            try {
-                onUpdateRoom(socketTag.action.toAll, this, false);
-            } catch (e) {
-            }
+    try {
+        var message = JSON.parse(data);
+        if (message.name == undefined || message.name == "") {
+            onError(this, messageToSend.nameRequired, messageToSend.default, socketTag.messageType.error);
+        } else if (message.name.trim().length < 5) {
+            onError(this, messageToSend.nameLength, messageToSend.default, socketTag.messageType.error);
+        } else if (message.roomId == undefined) {
+            onError(this, messageToSend.roomNotSelected, messageToSend.default, socketTag.messageType.error);
         } else {
-            if (hasPlayer) {
+            var hasPlayer = alreadyInGameRoom(this.id);
+            if (gameRooms[message.roomId].players.length != maxPlayerEachRoom && !hasPlayer) {
+                handleRoom(message, this);
                 try {
-                    onError(this, "You are already in another room.", "Please do not try to change the game contents.", socketTag.messageType.error);
+                    onUpdateRoom(socketTag.action.toAll, this, false);
                 } catch (e) {
                 }
             } else {
-                try {
-                    onError(this, "Maximum player joined in selected room.", "Please do not try to change the game contents.", socketTag.messageType.error);
-                } catch (e) {
+                if (hasPlayer) {
+                    try {
+                        onError(this, messageToSend.roomAlreadyJoined, messageToSend.default, socketTag.messageType.error);
+                    } catch (e) {
+                    }
+                } else {
+                    try {
+                        onError(this, messageToSend.maxPlayerInRoom, messageToSend.default, socketTag.messageType.error);
+                    } catch (e) {
+                    }
                 }
             }
         }
-    }
 //    var room = gameRooms[message.roomId];
 //    if (room.foodLength == 0 && room.boardHeight == 0 && room.boardWidth == 0 && room.contentSize == 0 && room.space == 0) {
 //        room.foodLength = message.foodLength;
@@ -159,33 +183,41 @@ function onClientJoinInGameRoom(data) {
 //            onError(message.roomId);
 //        }
 //    }
-    //if two players join in the room then game will start
+        //if two players join in the room then game will start
 //    if (gameRooms[message.roomId].players.length == maxPlayerEachRoom) {
 //        initGame(message.roomId);
 //    }
+    } catch (err) {
+    }
 }
 
 /**return tru or false if client id is already in the room**/
 function alreadyInGameRoom(id) {
-    for (var i = 0; i < gameRooms.length; i++) {
-        var players = gameRooms[i].players;
-        for (var j = 0; j < players.length; j++) {
-            if (players[j].getId == id) {
-                return true;
+    try {
+        for (var i = 0; i < gameRooms.length; i++) {
+            var players = gameRooms[i].players;
+            for (var j = 0; j < players.length; j++) {
+                if (players[j].getId == id) {
+                    return true;
+                }
             }
         }
+        return false;
+    } catch (err) {
     }
-    return false;
 }
 
 /**send error message if someone try to change game**/
 function onError(client, messageOne, messageTwo, messageType) {
-    var message = JSON.stringify({type: socketTag.request.onError, messageOne: messageOne, messageTwo: messageTwo, messageType: messageType});
-    if (client != undefined) {
-        client.emit(socketTag.request.onError, message);
-    }
-    else {
-        socket.emit(socketTag.request.onError, message);
+    try {
+        var message = JSON.stringify({type: socketTag.request.onError, messageOne: messageOne, messageTwo: messageTwo, messageType: messageType});
+        if (client != undefined) {
+            client.emit(socketTag.request.onError, message);
+        }
+        else {
+            socket.emit(socketTag.request.onError, message);
+        }
+    } catch (err) {
     }
 }
 
@@ -199,50 +231,47 @@ function initGame(id) {
 
 /**add client information to the room**/
 function onClientLeftGameRoom(data) {
-//    var message = JSON.parse(data);
-//    var room = gameRooms[message.roomId];
-//    if (message.flag == 'gameover') {
-//        room.requestCounter++;
-//        //if game over then get request from both player to remove game from server
-//        if (room.requestCounter == 2) {
-//            resetGameRoom(message.roomId);
-//            onUpdateRoom(true);
-//        }
-//    } else {
-//        resetGameRoom(message.roomId);
-//        onUpdateRoom(true);
-//    }
+    try {
+        var message = JSON.parse(data),
+            room = gameRooms[message.roomId];
+        if (room != undefined) {
+            onClientDisconnect(this, room);
+        } else {
+            onError(this, messageToSend.notInSelectedRoom, messageToSend.default, socketTag.messageType.error);
+        }
+    } catch (err) {
+    }
 }
 
 /**client disconnect
  * use io.connect('http://localhost:8000', {'sync disconnect on unload': true, 'sync disconnect on pagehide ': true}
  * in client side to detect disconnect immediately, otherwise have to wait till heartbeat time (pagehide os for IOS support);
  * WARNING: The solution is probably to fix socket.io-client to listen for both unload and pagehide events, because the unload event may not work as expected for back and forward optimization (IOS)**/
-function onClientDisconnect() {
-    //if game status is not running then remove player otherwise keep cards info only change client
-    //send as disconnection and if game is running then pause game otherwise hold
-    var players = this.id,
-        haveTo = [
-            {update: false, pause: false}
-        ];//make sure everything is going perfect without crash
-    for (var i = 0; i < gameRooms.length; i++) {
-        players = gameRooms[i].players;
-        for (var j = 0; j < players.length; j++) {
-            if (players[j].getId == this.id) {
+function onClientDisconnect(object, room) {
+    try {
+        //if game status is not running then remove player otherwise keep cards info only change client
+        //send as disconnection and if game is running then pause game otherwise hold
+        var players = undefined,
+            haveTo = [
+                {update: false, pause: false}
+            ],//make sure everything is going perfect without crash
+        //true if client id and players in the room's id matched with each other
+            matched = false,
+            disconnected = function (room) {
                 //if game is running then send message to all clients of that room to pause game
                 if (players.length == 1) {
-                    gameRooms[i].reset();
+                    room.reset();
                     haveTo.update = true;
                 } else if (players.length < maxPlayerEachRoom) {
                     players.splice(j, 1);
                     haveTo.update = true;
-                    setGameRoomStatus(gameRooms[i]);
+                    setGameRoomStatus(room);
                 } else if (players.length == maxPlayerEachRoom) {
                     players.splice(j, 1);
                     haveTo.update = true;
-                    setGameRoomStatus(gameRooms[i]);
+                    setGameRoomStatus(room);
                 }
-                haveTo.pause = (gameRooms[i].isRunning) ? true : false;
+                haveTo.pause = (room.isRunning) ? true : false;
                 if (haveTo.update) {
                     try {
                         onUpdateRoom(socketTag.action.toAll, this);
@@ -251,86 +280,126 @@ function onClientDisconnect() {
                 }
                 if (haveTo.pause) {
                     //pause other players
+                    try {
+                        onUpdateRoom(socketTag.action.toRoomClients, room);
+                        onError(room, messageToSend.maxPlayerInRoom, messageToSend.default, socketTag.messageType.pause);
+                    } catch (e) {
+                    }
                 } else {
                     try {
-                        onError(this, "Maximum player joined in selected room.", "Please do not try to change the game contents.", socketTag.messageType.info);
+                        onError(this, messageToSend.maxPlayerInRoom, messageToSend.default, socketTag.messageType.info);
                     } catch (e) {
                     }
                 }
-                break;
+            }
+        //if room pram is in first place then it contains "booted" if undefined, though this function has data as first param
+        if (room == undefined || room == "booted") {
+            for (var i = 0; i < gameRooms.length; i++) {
+                players = gameRooms[i].players;
+                for (var j = 0; j < players.length; j++) {
+                    if (players[j].getId == this.id) {
+                        matched = true;
+                        object = this;
+                        disconnected(gameRooms[i]);
+                        break;
+                    }
+                }
+            }
+        } else {
+            //use below code if player left the room
+            players = room.players;
+            for (var j = 0; j < players.length; j++) {
+                if (players[j].getId == object.id) {
+                    matched = true;
+                    disconnected(room);
+                    break;
+                }
             }
         }
+        if (!matched) {
+            onError(object, messageToSend.notInSelectedRoom, messageToSend.default, socketTag.messageType.error);
+        }
+    } catch (err) {
     }
 }
 
 /**Handle game room according to the current room status**/
 function handleRoom(message, clientObject) {
-    var gameRoom = gameRooms[message.roomId],
-        name = message.name;
-    for (var i = 0; i < gameRoom.players.length; i++) {
-        if (name == gameRoom.players[i].getClientName) {
-            //add extra value if duplicate name found
-            name = name + "_" + gameRoom.players.length;
-            break;
+    try {
+        var gameRoom = gameRooms[message.roomId],
+            name = message.name;
+        for (var i = 0; i < gameRoom.players.length; i++) {
+            if (name == gameRoom.players[i].getClientName) {
+                //add extra value if duplicate name found
+                name = name + "_" + gameRoom.players.length;
+                break;
+            }
         }
-    }
-    switch (gameRoom.status) {
-        //both player slots are empty
-        case gameStatus.empty:
-            gameRoom.players.push(new Player(name, clientObject, 1));
-            gameRoom.status = gameStatus.waiting;
-            gameRoom.statusMessage = "Awaiting for second player";
-            break;
-        //at least one player slot is empty, mostly playerOne
-        case gameStatus.waiting:
-            if (gameRoom.players.length != maxPlayerEachRoom) {
-                gameRoom.players.push(new Player(name, clientObject, 2));
+        switch (gameRoom.status) {
+            //both player slots are empty
+            case gameStatus.empty:
+                gameRoom.players.push(new Player(name, clientObject, 1));
+                gameRoom.status = gameStatus.waiting;
                 setGameRoomStatus(gameRoom);
-            } else {
-                try {
-                    onError(clientObject, "Maximum player joined in selected room.", "Please do not try to change the game contents.", socketTag.messageType.error);
-                } catch (e) {
+                break;
+            //at least one player slot is empty, mostly playerOne
+            case gameStatus.waiting:
+                if (gameRoom.players.length != maxPlayerEachRoom) {
+                    gameRoom.players.push(new Player(name, clientObject, 2));
+                    setGameRoomStatus(gameRoom);
+                } else {
+                    try {
+                        onError(clientObject, messageToSend.maxPlayerInRoom, messageToSend.default, socketTag.messageType.error);
+                    } catch (e) {
+                    }
                 }
-            }
-            break;
-        //waiting to run
-        case gameStatus.starting:
-            if (gameRoom.players.length == maxPlayerEachRoom) {
-                gameRoom.status = gameStatus.running;
-                gameRoom.statusMessage = "Game is running";
-            }
-            break;
-        //run game
-        case gameStatus.running:
-            break;
+                break;
+            //waiting to run
+            case gameStatus.starting:
+                if (gameRoom.players.length == maxPlayerEachRoom) {
+                    gameRoom.status = gameStatus.running;
+                    gameRoom.statusMessage = "Game is running";
+                }
+                break;
+            //run game
+            case gameStatus.running:
+                break;
+        }
+    } catch (err) {
     }
 }
 
 /**Set status message of game room**/
 function setGameRoomStatus(gameRoom) {
-    if (gameRoom.players.length == 1) {
-        gameRoom.statusMessage = "Awaiting for second player";
-    } else if (gameRoom.players.length == 2) {
-        gameRoom.statusMessage = "Awaiting for third player";
-    } else if (gameRoom.players.length == 3) {
-        gameRoom.statusMessage = "Awaiting for forth player";
-    } else if (gameRoom.players.length == maxPlayerEachRoom) {
-        gameRoom.status = gameStatus.starting;
-        gameRoom.statusMessage = "Game starting";
+    try {
+        if (gameRoom.players.length == 1) {
+            gameRoom.statusMessage = "Awaiting for second player";
+        } else if (gameRoom.players.length == 2) {
+            gameRoom.statusMessage = "Awaiting for third player";
+        } else if (gameRoom.players.length == 3) {
+            gameRoom.statusMessage = "Awaiting for forth player";
+        } else if (gameRoom.players.length == maxPlayerEachRoom) {
+            gameRoom.status = gameStatus.starting;
+            gameRoom.statusMessage = "Game starting";
+        }
+    } catch (err) {
     }
 }
 
 /**send room list to the client**/
 function sendGameListToClient(reactivate, disconnectedRoomId, errorMessage) {
-    var roomList = [];
-    var hasMaxPlayer = false;
-    for (var i = 0; i < gameRooms.length; i++) {
-        roomList.push({roomId: gameRooms[i].roomId, roomName: gameRooms[i].roomName, roomStatus: gameRooms[i].status, roomStatusMessage: gameRooms[i].statusMessage});
-        if (gameRooms[i].players.length == 4) {
-            hasMaxPlayer = true;
+    try {
+        var roomList = [];
+        var hasMaxPlayer = false;
+        for (var i = 0; i < gameRooms.length; i++) {
+            roomList.push({roomId: gameRooms[i].roomId, roomName: gameRooms[i].roomName, roomStatus: gameRooms[i].status, roomStatusMessage: gameRooms[i].statusMessage});
+            if (gameRooms[i].players.length == 4) {
+                hasMaxPlayer = true;
+            }
         }
+        return JSON.stringify({type: socketTag.request.rooms, roomList: roomList, reactivate: reactivate, disconnectedRoomId: disconnectedRoomId, joinedMaxPlayer: hasMaxPlayer, errorMessage: errorMessage});
+    } catch (err) {
     }
-    return JSON.stringify({type: socketTag.request.rooms, roomList: roomList, reactivate: reactivate, disconnectedRoomId: disconnectedRoomId, joinedMaxPlayer: hasMaxPlayer, errorMessage: errorMessage});
 }
 
 init();

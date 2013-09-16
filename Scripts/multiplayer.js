@@ -105,7 +105,10 @@
         }
     },
     cancel: function () {
-
+        //common.hideLobby();
+        if (multiPlayer.selectedRomNum != undefined && multiPlayer.selectedRomNum != 0) {
+            multiPlayer.sendSocketMessage({type: socketTag.onCancel, roomId: multiPlayer.selectedRomNum - 1});
+        }
     },
     updateRoomStatus: function (messageObject) {
         var roomList = messageObject.roomList;
