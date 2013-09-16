@@ -95,12 +95,9 @@
             var selectedRoom = multiPlayer.selectedRomNum;
             if (selectedRoom) {
                 multiPlayer.sendSocketMessage({type: socketTag.joinRoom, roomId: selectedRoom - 1, name: name});
-//                $('#multiPlayerGamesList').prop('disabled', true);
-//                $('#multiPlayerJoin').prop('disabled', true);
-//            } else {
-//                game.showMessageBox("Please select a game room to join.");
+                common.disableLobby();
             } else {
-                common.onInfoMessage("Please select a game room first.")
+                common.onInfoMessage("Please select a game room first.");
             }
         }
     },
@@ -108,6 +105,9 @@
         //common.hideLobby();
         if (multiPlayer.selectedRomNum != undefined && multiPlayer.selectedRomNum != 0) {
             multiPlayer.sendSocketMessage({type: socketTag.onCancel, roomId: multiPlayer.selectedRomNum - 1});
+            common.enableLobby();
+        } else {
+            common.onInfoMessage("Please select a game room first.");
         }
     },
     updateRoomStatus: function (messageObject) {

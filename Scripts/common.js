@@ -76,6 +76,8 @@ var common = {
         dom.lobby.html("<input id='clientName' type='text' maxlength='15' placeholder='Enter your name.'><br/><select id='multiPlayerGamesList' size='10'></select><input type='button' id='multiPlayerJoin' onclick='multiPlayer.join()' value='Join'/><input type='button' id='multiPlayerCancel' onclick='multiPlayer.cancel()' value='Cancel'/>");
         dom.clientName = $("#clientName");
         dom.multiPlayerGamesList = $("#multiPlayerGamesList");
+        dom.multiPlayerJoin = $("#multiPlayerJoin");
+        dom.multiPlayerCancel = $("#multiPlayerCancel");
         /**Store selected item index on keyUp or onClick**/
         dom.multiPlayerGamesList.keyup(function (e) {
             if (e.keyCode == 38 || e.keyCode == 40) {
@@ -86,6 +88,16 @@ var common = {
             multiPlayer.selectedRomNum = dom.multiPlayerGamesList.val();
         });
         dom.multiplayerLobby.show();
+    },
+    disableLobby: function () {
+        dom.clientName.prop('disabled', true);
+        dom.multiPlayerGamesList.prop('disabled', true);
+        dom.multiPlayerJoin.prop('disabled', true);
+    },
+    enableLobby: function () {
+        dom.clientName.prop('disabled', false);
+        dom.multiPlayerGamesList.prop('disabled', false);
+        dom.multiPlayerJoin.prop('disabled', false);
     },
     hideLobby: function () {
         dom.clientName = undefined;

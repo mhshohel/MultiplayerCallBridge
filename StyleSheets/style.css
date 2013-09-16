@@ -194,3 +194,22 @@
 #multiPlayerCancel:active, #multiPlayerCancel:disabled {
     color: black;
 }
+
+#multiPlayerGamesList:focus {
+    outline: none;
+}
+
+#multiPlayerGamesList option.empty {
+    color: black;
+}
+
+#multiPlayerGamesList option.waiting {
+    color: yellow;
+}
+
+#multiPlayerGamesList option.running {
+    color: red;
+}
+
+
+
